@@ -56,7 +56,7 @@ const GameHub = () => {
       icon: <Crown className="w-12 h-12 text-white" />,
       color: "from-yellow-500 to-amber-700",
       shadow: "shadow-amber-500/50",
-      type: "Card Strategy Gae",
+      type: "Card Strategy Game",
       playerNumber: "2",
       hasBots: false,
       link: "https://rawfidkshuvo.github.io/emperor-game/", // REPLACE WITH REAL LINK
@@ -131,7 +131,7 @@ const GameHub = () => {
           </h1>
 
           <p className="text-lg text-slate-400 max-w-2xl mx-auto leading-relaxed">
-            Welcome to the central hub for our social deduction and strategy
+            Welcome to the central hub for social deduction and strategy
             games. Choose your adventure, invite your friends, and start playing
             instantly in your browser.
           </p>
