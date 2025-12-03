@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import {
   Users,
+  Bot,
   Search,
   Crown,
   Skull,
@@ -25,66 +26,78 @@ const GameHub = () => {
       id: 1,
       title: "Conspiracy",
       description:
-        "A game of secret identities and hidden agendas. Trust no one as you uncover the plot.",
+        "A game of secret identities and hidden agendas. Trust no one as you uncover the plot. Bring your inner Bluff-master!",
       icon: <Eye className="w-12 h-12 text-white" />,
       color: "from-purple-600 to-indigo-900",
       shadow: "shadow-purple-500/50",
-      type: "Social Deduction",
+      type: "Bluffing Game",
+      playerNumber: "2-6",
+      hasBots: false,
       link: "https://rawfidkshuvo.github.io/conspiracy-card-game/", // REPLACE WITH REAL LINK
     },
     {
       id: 2,
       title: "Investigation",
       description:
-        "Gather clues, interview suspects, and solve the mystery before the trail goes cold.",
+        "Gather clues, interview suspects, and solve the mystery before the trail goes cold!",
       icon: <MagnifyingGlass className="w-12 h-12 text-white" />,
       color: "from-blue-600 to-cyan-800",
       shadow: "shadow-blue-500/50",
-      type: "Mystery Board Game",
+      type: "Murder Mystery Game",
+      playerNumber: "4-10",
+      hasBots: false,
       link: "https://rawfidkshuvo.github.io/investigation-game/", // REPLACE WITH REAL LINK
-    },
-    {
-      id: 3,
-      title: "Police Hunt",
-      description:
-        "A high-stakes chase. Play as the police coordinating a capture or the fugitive on the run.",
-      icon: <Siren className="w-12 h-12 text-white" />,
-      color: "from-red-600 to-rose-900",
-      shadow: "shadow-red-500/50",
-      type: "Strategy Pursuit",
-      link: "https://rawfidkshuvo.github.io/thief-police-game/", // REPLACE WITH REAL LINK
     },
     {
       id: 4,
       title: "Emperor",
       description:
-        "Political maneuvering in the ancient court. Vying for the throne requires cunning and betrayal.",
+        "Political maneuvering in the ancient court. Seven mighty kingdoms are at stake. Vying for the throne requires cunning and strategic moves!",
       icon: <Crown className="w-12 h-12 text-white" />,
       color: "from-yellow-500 to-amber-700",
       shadow: "shadow-amber-500/50",
-      type: "Card Strategy",
+      type: "Card Strategy Gae",
+      playerNumber: "2",
+      hasBots: false,
       link: "https://rawfidkshuvo.github.io/emperor-game/", // REPLACE WITH REAL LINK
     },
     {
       id: 5,
       title: "Pirates",
       description:
-        "Bluff your way to the treasure. A game of dice, deception, and high-seas treachery.",
+        "The dark seas are full of pirates. Navigate your way to the treasure. A game of deception and high-seas treachery!",
       icon: <Skull className="w-12 h-12 text-white" />,
       color: "from-emerald-600 to-teal-800",
       shadow: "shadow-emerald-500/50",
-      type: "Bluffing Game",
+      type: "Charecter Strategy Game",
+      playerNumber: "2-8",
+      hasBots: false,
       link: "https://rawfidkshuvo.github.io/pirates-game/", // REPLACE WITH REAL LINK
+    },
+    {
+      id: 3,
+      title: "Police Hunt",
+      description:
+        "A high-stakes chase. Play as the police coordinating a capture or the fugitive on the run!",
+      icon: <Siren className="w-12 h-12 text-white" />,
+      color: "from-red-600 to-rose-900",
+      shadow: "shadow-red-500/50",
+      type: "Criminal Pursuit Game",
+      playerNumber: "1-4",
+      hasBots: true,
+      link: "https://rawfidkshuvo.github.io/thief-police-game/", // REPLACE WITH REAL LINK
     },
     {
       id: 6,
       title: "Fruit Seller",
       description:
-        "Manage your market stall. Use psychology to outsell your opponents in this quick-fire card game.",
+        "Manage your fruit market stall. Use psychology to outsell your opponents in this quick-fire card game!",
       icon: <Apple className="w-12 h-12 text-white" />,
       color: "from-orange-500 to-red-600",
       shadow: "shadow-orange-500/50",
-      type: "Economic Party Game",
+      type: "Fun Party Game",
+      playerNumber: "1-6",
+      hasBots: true,
       link: "https://rawfidkshuvo.github.io/fruit-seller-game/", // REPLACE WITH REAL LINK
     },
   ];
@@ -114,7 +127,7 @@ const GameHub = () => {
           </div>
 
           <h1 className="text-5xl md:text-7xl font-black text-transparent bg-clip-text bg-gradient-to-r from-white via-slate-200 to-slate-400 tracking-tight mb-4">
-            Tabletop <span className="text-indigo-500">Online</span>
+            Board Games <span className="text-indigo-500">Online</span>
           </h1>
 
           <p className="text-lg text-slate-400 max-w-2xl mx-auto leading-relaxed">
@@ -168,6 +181,10 @@ const GameHub = () => {
             <span className="flex items-center gap-2">
               Built with React & Tailwind
             </span>
+            <span className="w-1 h-1 rounded-full bg-slate-700"></span>
+            <p className="flex items-center gap-2">
+              Developed by Rawfid K Shuvo
+            </p>
           </div>
           <p>
             &copy; {new Date().getFullYear()} Game Hub Portal. All rights
@@ -220,10 +237,20 @@ const GameCard = ({ game }) => {
         {/* Footer Part of Card */}
         <div className="pt-4 border-t border-slate-800/50 mt-4 flex items-center justify-between group/btn">
           <div className="flex items-center text-slate-400 text-sm">
-            <Users className="w-4 h-4 mr-2" />
-            <span>Multiplayer</span>
+            <span className="px-3 py-1 bg-slate-800 text-slate-300 text-xs font-semibold tracking-wider rounded-full border border-slate-700 flex items-center gap-1">
+              <Users className="w-4 h-4" />
+              {game.playerNumber} Players
+            </span>
           </div>
-
+          {game.hasBots && (
+            <div
+              className="flex items-center px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-medium"
+              title="AI Bots Available"
+            >
+              <Bot className="w-3.5 h-3.5 mr-1" />
+              <span>Bots</span>
+            </div>
+          )}
           <div className="flex items-center text-white font-medium group-hover/btn:translate-x-1 transition-transform">
             Play Now <ArrowRight className="w-4 h-4 ml-2" />
           </div>
