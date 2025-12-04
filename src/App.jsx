@@ -4,7 +4,7 @@ import {
   Bot,
   Search,
   Crown,
-  Skull,
+  Ship,
   Search as MagnifyingGlass,
   Siren,
   Apple,
@@ -36,13 +36,26 @@ const GameHub = () => {
       link: "https://rawfidkshuvo.github.io/conspiracy-card-game/", // REPLACE WITH REAL LINK
     },
     {
+      id: 5,
+      title: "Pirates",
+      description:
+        "The dark seas are full of pirates. Navigate your way to the treasure. A game of deception and high-seas treachery!",
+      icon: <Ship className="w-12 h-12 text-white" />,
+      color: "from-red-600 to-orange-800",
+      shadow: "shadow-orange-500/50",
+      type: "Charecter Strategy Game",
+      playerNumber: "2-8",
+      hasBots: false,
+      link: "https://rawfidkshuvo.github.io/pirates-game/", // REPLACE WITH REAL LINK
+    },
+    {
       id: 2,
       title: "Investigation",
       description:
         "Gather clues, interview suspects, and solve the mystery before the trail goes cold!",
       icon: <MagnifyingGlass className="w-12 h-12 text-white" />,
-      color: "from-blue-600 to-cyan-800",
-      shadow: "shadow-blue-500/50",
+      color: "from-green-600 to-cyan-800",
+      shadow: "shadow-green-500/50",
       type: "Murder Mystery Game",
       playerNumber: "4-10",
       hasBots: false,
@@ -62,25 +75,12 @@ const GameHub = () => {
       link: "https://rawfidkshuvo.github.io/emperor-game/", // REPLACE WITH REAL LINK
     },
     {
-      id: 5,
-      title: "Pirates",
-      description:
-        "The dark seas are full of pirates. Navigate your way to the treasure. A game of deception and high-seas treachery!",
-      icon: <Skull className="w-12 h-12 text-white" />,
-      color: "from-emerald-600 to-teal-800",
-      shadow: "shadow-emerald-500/50",
-      type: "Charecter Strategy Game",
-      playerNumber: "2-8",
-      hasBots: false,
-      link: "https://rawfidkshuvo.github.io/pirates-game/", // REPLACE WITH REAL LINK
-    },
-    {
       id: 3,
       title: "Police Hunt",
       description:
         "A high-stakes chase. Play as the police coordinating a capture or the fugitive on the run!",
       icon: <Siren className="w-12 h-12 text-white" />,
-      color: "from-red-600 to-rose-900",
+      color: "from-red-700 to-blue-900",
       shadow: "shadow-red-500/50",
       type: "Criminal Pursuit Game",
       playerNumber: "1-4",
@@ -131,7 +131,7 @@ const GameHub = () => {
           </h1>
 
           <p className="text-lg text-slate-400 max-w-2xl mx-auto leading-relaxed">
-            Welcome to the central hub for social deduction and strategy
+            Welcome to the central hub for our social deduction and strategy
             games. Choose your adventure, invite your friends, and start playing
             instantly in your browser.
           </p>
