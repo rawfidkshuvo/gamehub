@@ -15,6 +15,12 @@ import {
   setDoc,
   getDoc,
   onSnapshot,
+  collection,
+  addDoc,
+  serverTimestamp,
+  query,
+  orderBy,
+  limit,
 } from "firebase/firestore";
 import {
   Users,
@@ -44,6 +50,14 @@ import {
   Save,
   X,
   Lock,
+  Star,
+  Clock,
+  Trash2,
+  Activity,
+  List,
+  LayoutGrid,
+  Smartphone,
+  Monitor,
 } from "lucide-react";
 
 // ---------------------------------------------------------------------------
@@ -63,7 +77,7 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 
 // ---------------------------------------------------------------------------
-// STATIC GAME DATA (Updated Descriptions)
+// STATIC GAME DATA
 // ---------------------------------------------------------------------------
 const INITIAL_GAMES = [
   {
@@ -252,11 +266,22 @@ const INITIAL_GAMES = [
 
 // --- Components ---
 
-const AdminModal = ({ isOpen, onClose, games, onSave, currentUser }) => {
+const AdminModal = ({
+  isOpen,
+  onClose,
+  games,
+  onSave,
+  currentUser,
+  realClickData,
+}) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [localConfig, setLocalConfig] = useState({});
+
+  // Admin Tabs State
+  const [activeTab, setActiveTab] = useState("config"); // 'config' | 'logs'
+  const [activityLogs, setActivityLogs] = useState([]);
 
   useEffect(() => {
     if (currentUser && currentUser.email === "admin@rawfidsgamehub.com") {
@@ -266,6 +291,7 @@ const AdminModal = ({ isOpen, onClose, games, onSave, currentUser }) => {
     }
   }, [isOpen, currentUser]);
 
+  // Initialize config
   useEffect(() => {
     if (isOpen) {
       const config = {};
@@ -275,12 +301,32 @@ const AdminModal = ({ isOpen, onClose, games, onSave, currentUser }) => {
           isNew: g.isNew,
           isHot: g.isHot,
           isFeatured: g.isFeatured || false,
-          popularity: g.popularity || 0,
+          isUpcoming: g.isUpcoming || false,
+          popularity: g.manualBoost || 0,
         };
       });
       setLocalConfig(config);
     }
   }, [isOpen, games]);
+
+  // Fetch Logs when switching to logs tab
+  useEffect(() => {
+    if (isAuthenticated && activeTab === "logs") {
+      const q = query(
+        collection(db, "game_click_logs"),
+        orderBy("timestamp", "desc"),
+        limit(50)
+      );
+      const unsub = onSnapshot(q, (snapshot) => {
+        const logs = snapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        setActivityLogs(logs);
+      });
+      return () => unsub();
+    }
+  }, [isAuthenticated, activeTab]);
 
   if (!isOpen) return null;
 
@@ -325,9 +371,42 @@ const AdminModal = ({ isOpen, onClose, games, onSave, currentUser }) => {
     onClose();
   };
 
+  const formatTime = (timestamp) => {
+    if (!timestamp) return "Just now";
+    return new Date(timestamp.seconds * 1000).toLocaleString(undefined, {
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  };
+
+  const getDeviceIcon = (userAgent) => {
+    if (!userAgent) return <Monitor size={14} className="text-slate-500" />;
+    const lower = userAgent.toLowerCase();
+    if (
+      lower.includes("mobile") ||
+      lower.includes("android") ||
+      lower.includes("iphone")
+    ) {
+      return <Smartphone size={14} className="text-pink-400" />;
+    }
+    return <Monitor size={14} className="text-blue-400" />;
+  };
+
+  const getDeviceName = (userAgent) => {
+    if (!userAgent) return "Unknown";
+    if (userAgent.includes("Win")) return "Windows PC";
+    if (userAgent.includes("Mac")) return "Mac";
+    if (userAgent.includes("Linux")) return "Linux";
+    if (userAgent.includes("Android")) return "Android";
+    if (userAgent.includes("iPhone")) return "iPhone";
+    return "Browser";
+  };
+
   return (
     <div className="fixed inset-0 z-[100] bg-black/90 flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in">
-      <div className="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-5xl max-h-[90vh] flex flex-col shadow-2xl">
+      <div className="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-7xl max-h-[90vh] flex flex-col shadow-2xl">
         <div className="p-6 border-b border-slate-800 flex justify-between items-center bg-slate-950 rounded-t-2xl">
           <h2 className="text-xl font-bold text-white flex items-center gap-2">
             <Settings className="text-indigo-500" /> Admin Control Panel
@@ -370,77 +449,198 @@ const AdminModal = ({ isOpen, onClose, games, onSave, currentUser }) => {
           </div>
         ) : (
           <>
-            <div className="flex-1 overflow-y-auto p-6">
-              <table className="w-full text-left border-collapse">
-                <thead>
-                  <tr className="text-slate-400 text-xs uppercase tracking-wider border-b border-slate-800">
-                    <th className="pb-3 pl-2">Game</th>
-                    <th className="pb-3 text-center">Featured</th>
-                    <th className="pb-3 text-center">Visible</th>
-                    <th className="pb-3 text-center">New</th>
-                    <th className="pb-3 text-center">Hot</th>
-                    <th className="pb-3 text-center">Popularity</th>
-                  </tr>
-                </thead>
-                <tbody className="text-sm">
-                  {games.map((game) => (
-                    <tr
-                      key={game.id}
-                      className="border-b border-slate-800/50 hover:bg-slate-800/30 transition-colors"
-                    >
-                      <td className="py-3 pl-2 font-medium text-slate-200">
-                        {game.title}
-                      </td>
-                      <td className="py-3 text-center">
-                        <div className="flex justify-center">
-                          <input
-                            type="radio"
-                            name="featuredGame"
-                            checked={localConfig[game.id]?.isFeatured || false}
-                            onChange={() => handleFeaturedSelect(game.id)}
-                            className="w-4 h-4 accent-yellow-500 cursor-pointer"
-                          />
-                        </div>
-                      </td>
-                      <td className="py-3 text-center">
-                        <input
-                          type="checkbox"
-                          checked={localConfig[game.id]?.visible ?? true}
-                          onChange={() => handleToggle(game.id, "visible")}
-                          className="w-4 h-4 accent-emerald-500 cursor-pointer"
-                        />
-                      </td>
-                      <td className="py-3 text-center">
-                        <input
-                          type="checkbox"
-                          checked={localConfig[game.id]?.isNew ?? false}
-                          onChange={() => handleToggle(game.id, "isNew")}
-                          className="w-4 h-4 accent-indigo-500 cursor-pointer"
-                        />
-                      </td>
-                      <td className="py-3 text-center">
-                        <input
-                          type="checkbox"
-                          checked={localConfig[game.id]?.isHot ?? false}
-                          onChange={() => handleToggle(game.id, "isHot")}
-                          className="w-4 h-4 accent-orange-500 cursor-pointer"
-                        />
-                      </td>
-                      <td className="py-3 text-center">
-                        <input
-                          type="number"
-                          value={localConfig[game.id]?.popularity || 0}
-                          onChange={(e) =>
-                            handlePopularityChange(game.id, e.target.value)
-                          }
-                          className="w-20 bg-slate-950 border border-slate-700 rounded p-1 text-center text-white focus:border-indigo-500 outline-none"
-                        />
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+            {/* TABS HEADER */}
+            <div className="flex border-b border-slate-800 bg-slate-900/50">
+              <button
+                onClick={() => setActiveTab("config")}
+                className={`px-6 py-4 text-sm font-bold flex items-center gap-2 transition-colors ${
+                  activeTab === "config"
+                    ? "text-white border-b-2 border-indigo-500 bg-slate-800"
+                    : "text-slate-400 hover:text-white"
+                }`}
+              >
+                <LayoutGrid size={16} /> Game Config
+              </button>
+              <button
+                onClick={() => setActiveTab("logs")}
+                className={`px-6 py-4 text-sm font-bold flex items-center gap-2 transition-colors ${
+                  activeTab === "logs"
+                    ? "text-white border-b-2 border-indigo-500 bg-slate-800"
+                    : "text-slate-400 hover:text-white"
+                }`}
+              >
+                <List size={16} /> Activity Logs
+              </button>
             </div>
+
+            <div className="flex-1 overflow-y-auto p-6">
+              {/* --- CONFIG TAB --- */}
+              {activeTab === "config" && (
+                <table className="w-full text-left border-collapse">
+                  <thead>
+                    <tr className="text-slate-400 text-xs uppercase tracking-wider border-b border-slate-800">
+                      <th className="pb-3 pl-2">Game</th>
+                      <th className="pb-3 text-center">Featured</th>
+                      <th className="pb-3 text-center">Visible</th>
+                      <th className="pb-3 text-center">New</th>
+                      <th className="pb-3 text-center">Hot</th>
+                      <th className="pb-3 text-center text-indigo-400">
+                        Upcoming
+                      </th>
+                      <th className="pb-3 text-center text-emerald-400">
+                        Real Clicks
+                      </th>
+                      <th className="pb-3 text-center text-orange-400">
+                        Boost
+                      </th>
+                      <th className="pb-3 text-center">Total</th>
+                    </tr>
+                  </thead>
+                  <tbody className="text-sm">
+                    {games.map((game) => {
+                      const realClicks = realClickData[game.id] || 0;
+                      const manualBoost = localConfig[game.id]?.popularity || 0;
+                      return (
+                        <tr
+                          key={game.id}
+                          className="border-b border-slate-800/50 hover:bg-slate-800/30 transition-colors"
+                        >
+                          <td className="py-3 pl-2 font-medium text-slate-200">
+                            {game.title}
+                          </td>
+                          <td className="py-3 text-center">
+                            <div className="flex justify-center">
+                              <input
+                                type="radio"
+                                name="featuredGame"
+                                checked={
+                                  localConfig[game.id]?.isFeatured || false
+                                }
+                                onChange={() => handleFeaturedSelect(game.id)}
+                                className="w-4 h-4 accent-yellow-500 cursor-pointer"
+                              />
+                            </div>
+                          </td>
+                          <td className="py-3 text-center">
+                            <input
+                              type="checkbox"
+                              checked={localConfig[game.id]?.visible ?? true}
+                              onChange={() => handleToggle(game.id, "visible")}
+                              className="w-4 h-4 accent-emerald-500 cursor-pointer"
+                            />
+                          </td>
+                          <td className="py-3 text-center">
+                            <input
+                              type="checkbox"
+                              checked={localConfig[game.id]?.isNew ?? false}
+                              onChange={() => handleToggle(game.id, "isNew")}
+                              className="w-4 h-4 accent-indigo-500 cursor-pointer"
+                            />
+                          </td>
+                          <td className="py-3 text-center">
+                            <input
+                              type="checkbox"
+                              checked={localConfig[game.id]?.isHot ?? false}
+                              onChange={() => handleToggle(game.id, "isHot")}
+                              className="w-4 h-4 accent-orange-500 cursor-pointer"
+                            />
+                          </td>
+                          <td className="py-3 text-center">
+                            <input
+                              type="checkbox"
+                              checked={
+                                localConfig[game.id]?.isUpcoming ?? false
+                              }
+                              onChange={() =>
+                                handleToggle(game.id, "isUpcoming")
+                              }
+                              className="w-4 h-4 accent-pink-500 cursor-pointer"
+                            />
+                          </td>
+                          <td className="py-3 text-center text-emerald-400 font-mono">
+                            {realClicks}
+                          </td>
+                          <td className="py-3 text-center">
+                            <input
+                              type="number"
+                              value={manualBoost}
+                              onChange={(e) =>
+                                handlePopularityChange(game.id, e.target.value)
+                              }
+                              className="w-20 bg-slate-950 border border-slate-700 rounded p-1 text-center text-white focus:border-indigo-500 outline-none"
+                            />
+                          </td>
+                          <td className="py-3 text-center text-slate-400 font-bold">
+                            {realClicks + manualBoost}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              )}
+
+              {/* --- ACTIVITY LOGS TAB --- */}
+              {activeTab === "logs" && (
+                <div className="w-full">
+                  {activityLogs.length === 0 ? (
+                    <div className="text-center text-slate-500 py-10 italic">
+                      No activity recorded yet.
+                    </div>
+                  ) : (
+                    <table className="w-full text-left border-collapse">
+                      <thead>
+                        <tr className="text-slate-400 text-xs uppercase tracking-wider border-b border-slate-800">
+                          <th className="pb-3 pl-2">Time</th>
+                          <th className="pb-3">Game</th>
+                          <th className="pb-3">Category</th>
+                          <th className="pb-3">User ID</th>
+                          <th className="pb-3 text-right pr-2">Device</th>
+                        </tr>
+                      </thead>
+                      <tbody className="text-sm">
+                        {activityLogs.map((log) => (
+                          <tr
+                            key={log.id}
+                            className="border-b border-slate-800/50 hover:bg-slate-800/30 transition-colors"
+                          >
+                            <td className="py-3 pl-2 text-slate-400 font-mono text-xs whitespace-nowrap">
+                              {formatTime(log.timestamp)}
+                            </td>
+                            <td className="py-3 font-medium text-white">
+                              {log.gameTitle}
+                            </td>
+                            <td className="py-3 text-slate-400">
+                              <span className="px-2 py-1 bg-slate-800 rounded text-xs">
+                                {log.category}
+                              </span>
+                            </td>
+                            <td
+                              className="py-3 font-mono text-xs text-slate-500"
+                              title={log.userId}
+                            >
+                              {log.userId === "unknown"
+                                ? "Guest"
+                                : log.userId.substring(0, 8) + "..."}
+                            </td>
+                            <td
+                              className="py-3 text-right pr-2 flex justify-end items-center gap-2 text-slate-400"
+                              title={log.device}
+                            >
+                              <span className="text-xs hidden md:inline">
+                                {getDeviceName(log.device)}
+                              </span>
+                              {getDeviceIcon(log.device)}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  )}
+                </div>
+              )}
+            </div>
+
             <div className="p-6 border-t border-slate-800 bg-slate-950 flex justify-between gap-3 rounded-b-2xl">
               <button
                 onClick={handleLogout}
@@ -453,14 +653,16 @@ const AdminModal = ({ isOpen, onClose, games, onSave, currentUser }) => {
                   onClick={onClose}
                   className="px-6 py-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
                 >
-                  Cancel
+                  Close
                 </button>
-                <button
-                  onClick={handleSave}
-                  className="px-6 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold flex items-center gap-2 shadow-lg shadow-emerald-900/20"
-                >
-                  <Save size={18} /> Publish Changes
-                </button>
+                {activeTab === "config" && (
+                  <button
+                    onClick={handleSave}
+                    className="px-6 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold flex items-center gap-2 shadow-lg shadow-emerald-900/20"
+                  >
+                    <Save size={18} /> Publish Changes
+                  </button>
+                )}
               </div>
             </div>
           </>
@@ -526,12 +728,32 @@ const FloatingBackground = ({ games }) => {
   );
 };
 
-const GameCard = ({ game }) => {
-  const handleGameClick = async () => {
+// Updated GameCard with Richer Logging
+const GameCard = ({ game, isUpcoming }) => {
+  const handleGameClick = async (e) => {
+    if (isUpcoming) {
+      e.preventDefault();
+      return;
+    }
+
     try {
+      // 1. Increment Count
       const statsRef = doc(db, "game_stats", `game_${game.id}`);
       await updateDoc(statsRef, { clicks: increment(1) }).catch(async (err) => {
         if (err.code === "not-found") await setDoc(statsRef, { clicks: 1 });
+      });
+
+      // 2. Add Detailed Entry to Activity Log
+      const logsRef = collection(db, "game_click_logs");
+      const currentUser = auth.currentUser;
+
+      await addDoc(logsRef, {
+        gameId: game.id,
+        gameTitle: game.title,
+        category: game.category,
+        userId: currentUser ? currentUser.uid : "unknown",
+        device: navigator.userAgent,
+        timestamp: serverTimestamp(),
       });
     } catch (error) {
       console.error("Error tracking click:", error);
@@ -540,32 +762,42 @@ const GameCard = ({ game }) => {
 
   return (
     <a
-      href={game.link}
+      href={isUpcoming ? undefined : game.link}
       target="_blank"
       rel="noopener noreferrer"
       onClick={handleGameClick}
-      className="group relative block h-full animate-in fade-in zoom-in duration-500"
+      className={`group relative block h-full animate-in fade-in zoom-in duration-500 ${
+        isUpcoming ? "cursor-default opacity-80" : "cursor-pointer"
+      }`}
     >
       <div
-        className={`absolute -inset-0.5 bg-gradient-to-r ${game.color} rounded-2xl opacity-0 group-hover:opacity-75 blur transition duration-500 group-hover:duration-200`}
+        className={`absolute -inset-0.5 bg-gradient-to-r ${
+          game.color
+        } rounded-2xl opacity-0 ${
+          isUpcoming ? "group-hover:opacity-30" : "group-hover:opacity-75"
+        } blur transition duration-500 group-hover:duration-200`}
       />
       <div className="relative h-full flex flex-col bg-slate-900 rounded-xl p-6 border border-slate-800 hover:border-transparent transition-colors duration-300">
-        {/* Header Row */}
         <div className="flex justify-between items-start mb-6 h-8">
           <div className="flex gap-2 flex-wrap">
-            {game.isNew && (
+            {game.isNew && !isUpcoming && (
               <span className="bg-emerald-500 text-white text-[10px] font-bold px-2 py-1 rounded-full shadow-lg animate-pulse flex items-center gap-1">
                 <Sparkles size={10} /> NEW
               </span>
             )}
-            {game.isHot && (
+            {game.isHot && !isUpcoming && (
               <span className="bg-orange-500 text-white text-[10px] font-bold px-2 py-1 rounded-full shadow-lg flex items-center gap-1">
                 <Flame size={10} /> HOT
               </span>
             )}
-            {game.isPopular && (
+            {game.isPopular && !isUpcoming && (
               <span className="bg-blue-600 text-white text-[10px] font-bold px-2 py-1 rounded-full shadow-lg flex items-center gap-1 shadow-blue-500/50">
                 <Crown size={10} /> POPULAR
+              </span>
+            )}
+            {isUpcoming && (
+              <span className="bg-pink-600 text-white text-[10px] font-bold px-2 py-1 rounded-full shadow-lg flex items-center gap-1 shadow-pink-500/50">
+                <Clock size={10} /> COMING SOON
               </span>
             )}
           </div>
@@ -574,7 +806,6 @@ const GameCard = ({ game }) => {
           </span>
         </div>
 
-        {/* Icon */}
         <div className="mb-4">
           <div
             className={`inline-block p-3 rounded-xl bg-gradient-to-br ${game.color} ${game.shadow} shadow-lg transform group-hover:scale-110 transition-transform duration-300`}
@@ -583,7 +814,6 @@ const GameCard = ({ game }) => {
           </div>
         </div>
 
-        {/* Text */}
         <div className="flex-grow">
           <h3 className="text-2xl font-bold text-white mb-2 group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-white group-hover:to-slate-300 transition-all">
             {game.title}
@@ -593,23 +823,27 @@ const GameCard = ({ game }) => {
           </p>
         </div>
 
-        {/* Footer */}
         <div className="pt-4 border-t border-slate-800/50 mt-auto flex items-center justify-between group/btn">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center text-slate-400 text-sm">
             <span className="px-3 py-1 bg-slate-800/50 text-slate-300 text-xs font-semibold tracking-wider rounded-full border border-slate-700/50 flex items-center gap-1">
               <Users className="w-3 h-3" />
               {game.minPlayers}-{game.maxPlayers}
             </span>
-            {game.hasBots && (
-              <div className="px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[10px] font-medium flex items-center gap-1">
-                <Bot className="w-3 h-3" />
-                +Bot
-              </div>
-            )}
+            <div className="ml-2 flex items-center gap-2">
+              {game.hasBots && (
+                <div className="px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[10px] font-medium flex items-center gap-1">
+                  <Bot className="w-3 h-3" />
+                  +Bot
+                </div>
+              )}
+            </div>
           </div>
-          <div className="flex items-center text-white font-medium text-sm group-hover/btn:translate-x-1 transition-transform">
-            Play <ArrowRight className="w-4 h-4 ml-1" />
-          </div>
+
+          {!isUpcoming && (
+            <div className="flex items-center text-white font-medium text-sm group-hover/btn:translate-x-1 transition-transform">
+              Play <ArrowRight className="w-4 h-4 ml-1" />
+            </div>
+          )}
         </div>
       </div>
     </a>
@@ -664,10 +898,11 @@ const GameHub = () => {
   const [playerCount, setPlayerCount] = useState(0);
 
   const [gameOverrides, setGameOverrides] = useState({});
+  const [clickStats, setClickStats] = useState({});
   const [isAdminOpen, setIsAdminOpen] = useState(false);
   const [user, setUser] = useState(null);
 
-  // 1. Authentication & Config Listener
+  // 1. Listeners
   useEffect(() => {
     const unsubConfig = onSnapshot(
       doc(db, "game_hub_settings", "config"),
@@ -677,6 +912,15 @@ const GameHub = () => {
         }
       }
     );
+
+    const unsubStats = onSnapshot(collection(db, "game_stats"), (snapshot) => {
+      const stats = {};
+      snapshot.docs.forEach((doc) => {
+        const id = parseInt(doc.id.replace("game_", ""));
+        stats[id] = doc.data().clicks || 0;
+      });
+      setClickStats(stats);
+    });
 
     const unsubAuth = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
@@ -690,43 +934,45 @@ const GameHub = () => {
     return () => {
       unsubConfig();
       unsubAuth();
+      unsubStats();
     };
   }, []);
 
-  // 2. Admin Save Handler
   const handleAdminSave = async (newConfig) => {
     await setDoc(doc(db, "game_hub_settings", "config"), newConfig);
   };
 
-  // 3. Merge Data
   const processedGames = useMemo(() => {
     return INITIAL_GAMES.map((game) => {
       const override = gameOverrides[game.id] || {};
+      const realClicks = clickStats[game.id] || 0;
+      const manualBoost = override.popularity || 0;
+
       return {
         ...game,
         visible: override.visible ?? true,
         isNew: override.isNew ?? false,
         isHot: override.isHot ?? false,
         isFeatured: override.isFeatured || false,
-        popularity: override.popularity || 0,
+        isUpcoming: override.isUpcoming || false,
+        manualBoost: manualBoost,
+        popularity: realClicks + manualBoost,
       };
     });
-  }, [gameOverrides]);
+  }, [gameOverrides, clickStats]);
 
   const categories = [
     "All",
-    ...new Set(processedGames.filter((g) => g.visible).map((g) => g.category)),
+    ...new Set(
+      processedGames
+        .filter((g) => g.visible && !g.isUpcoming)
+        .map((g) => g.category)
+    ),
   ];
 
-  // Logic: Find Top 2 Popular Games
-  const popularGames = useMemo(() => {
-    return [...processedGames]
-      .filter((g) => g.visible)
-      .sort((a, b) => (b.popularity || 0) - (a.popularity || 0))
-      .slice(0, 2);
-  }, [processedGames]);
+  const isFiltering =
+    searchTerm !== "" || selectedCategory !== "All" || playerCount !== 0;
 
-  // Filter AND Sort by Popularity
   const filteredGames = useMemo(() => {
     return processedGames
       .filter((game) => {
@@ -739,18 +985,40 @@ const GameHub = () => {
           playerCount === 0 ||
           (playerCount >= game.minPlayers && playerCount <= game.maxPlayers);
 
-        return (
-          matchesSearch && matchesCategory && matchesPlayers && game.visible
-        );
-      })
-      .sort((a, b) => (b.popularity || 0) - (a.popularity || 0)); // Global Sort
-  }, [searchTerm, selectedCategory, playerCount, processedGames]);
+        const isPlayable = !game.isUpcoming;
 
-  // Find Featured Game
+        if (isFiltering) {
+          return (
+            matchesSearch && matchesCategory && matchesPlayers && game.visible
+          );
+        } else {
+          return isPlayable && game.visible;
+        }
+      })
+      .sort((a, b) => (b.popularity || 0) - (a.popularity || 0));
+  }, [searchTerm, selectedCategory, playerCount, processedGames, isFiltering]);
+
+  const upcomingGames = useMemo(() => {
+    return processedGames.filter((g) => g.visible && g.isUpcoming);
+  }, [processedGames]);
+
+  const popularGames = useMemo(() => {
+    return [...processedGames]
+      .filter((g) => g.visible && !g.isUpcoming)
+      .sort((a, b) => (b.popularity || 0) - (a.popularity || 0))
+      .slice(0, 2);
+  }, [processedGames]);
+
   const featuredGame =
-    processedGames.find((g) => g.isFeatured) ||
+    processedGames.find((g) => g.isFeatured && !g.isUpcoming) ||
     processedGames.find((g) => g.title === "Deep Dive") ||
     processedGames[0];
+
+  const resetFilters = () => {
+    setSearchTerm("");
+    setSelectedCategory("All");
+    setPlayerCount(0);
+  };
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-200 font-sans selection:bg-indigo-500 selection:text-white relative">
@@ -762,6 +1030,7 @@ const GameHub = () => {
         games={processedGames}
         onSave={handleAdminSave}
         currentUser={user}
+        realClickData={clickStats}
       />
 
       <div className="relative z-10 container mx-auto px-4 py-12 max-w-7xl">
@@ -777,7 +1046,7 @@ const GameHub = () => {
           </h1>
         </header>
 
-        <HeroSection featuredGame={featuredGame} />
+        {!isFiltering && <HeroSection featuredGame={featuredGame} />}
 
         <div className="max-w-5xl mx-auto mb-12 space-y-6">
           <div className="flex flex-col md:flex-row gap-4">
@@ -814,25 +1083,35 @@ const GameHub = () => {
               </div>
             </div>
           </div>
-          <div className="flex flex-wrap justify-center gap-2">
-            {categories.map((cat) => (
+
+          <div className="flex flex-wrap justify-between items-center gap-4">
+            <div className="flex flex-wrap gap-2">
+              {categories.map((cat) => (
+                <button
+                  key={cat}
+                  onClick={() => setSelectedCategory(cat)}
+                  className={`px-4 py-2 rounded-full text-sm font-bold transition-all border ${
+                    selectedCategory === cat
+                      ? "bg-indigo-600 text-white border-indigo-500 shadow-lg shadow-indigo-900/50"
+                      : "bg-slate-900/50 text-slate-400 border-slate-700 hover:bg-slate-800 hover:text-white"
+                  }`}
+                >
+                  {cat}
+                </button>
+              ))}
+            </div>
+            {isFiltering && (
               <button
-                key={cat}
-                onClick={() => setSelectedCategory(cat)}
-                className={`px-4 py-2 rounded-full text-sm font-bold transition-all border ${
-                  selectedCategory === cat
-                    ? "bg-indigo-600 text-white border-indigo-500 shadow-lg shadow-indigo-900/50"
-                    : "bg-slate-900/50 text-slate-400 border-slate-700 hover:bg-slate-800 hover:text-white"
-                }`}
+                onClick={resetFilters}
+                className="px-4 py-2 bg-red-900/50 border border-red-500 text-red-200 rounded-full text-sm font-bold flex items-center gap-2 hover:bg-red-900 transition-colors animate-in fade-in"
               >
-                {cat}
+                <Trash2 size={14} /> Clear Filters
               </button>
-            ))}
+            )}
           </div>
         </div>
 
-        {/* --- Trending Games Section --- */}
-        {popularGames.length > 0 && (
+        {!isFiltering && popularGames.length > 0 && (
           <section className="mb-16 animate-in slide-in-from-bottom-4 duration-700 delay-200">
             <div className="flex items-center gap-2 mb-6">
               <div className="p-2 bg-blue-500/10 rounded-lg border border-blue-500/20">
@@ -850,13 +1129,14 @@ const GameHub = () => {
           </section>
         )}
 
-        {/* Main Games Grid */}
         <div className="flex items-center gap-2 mb-6">
           <div className="p-2 bg-slate-800 rounded-lg border border-slate-700">
             <Gamepad2 className="w-5 h-5 text-slate-400" />
           </div>
           <h2 className="text-2xl font-bold text-white tracking-wide">
-            All Games (Most Popular)
+            {isFiltering
+              ? `Search Results (${filteredGames.length})`
+              : "All Games (Most Popular)"}
           </h2>
         </div>
 
@@ -869,6 +1149,7 @@ const GameHub = () => {
                   ...game,
                   isPopular: popularGames.some((pg) => pg.id === game.id),
                 }}
+                isUpcoming={game.isUpcoming}
               />
             ))
           ) : (
@@ -877,15 +1158,8 @@ const GameHub = () => {
               <h3 className="text-xl font-semibold text-slate-400">
                 No games match your filters
               </h3>
-              <p className="text-slate-500 mt-2">
-                Try adjusting the player count or category.
-              </p>
               <button
-                onClick={() => {
-                  setSearchTerm("");
-                  setSelectedCategory("All");
-                  setPlayerCount(0);
-                }}
+                onClick={resetFilters}
                 className="mt-6 px-6 py-2 bg-slate-800 hover:bg-slate-700 rounded-lg text-white font-medium transition-colors"
               >
                 Clear Filters
@@ -893,6 +1167,24 @@ const GameHub = () => {
             </div>
           )}
         </main>
+
+        {!isFiltering && upcomingGames.length > 0 && (
+          <section className="mb-16 animate-in slide-in-from-bottom-4 duration-700">
+            <div className="flex items-center gap-2 mb-6">
+              <div className="p-2 bg-pink-500/10 rounded-lg border border-pink-500/20">
+                <Clock className="w-5 h-5 text-pink-400" />
+              </div>
+              <h2 className="text-2xl font-bold text-white tracking-wide">
+                Upcoming Releases
+              </h2>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+              {upcomingGames.map((game) => (
+                <GameCard key={game.id} game={game} isUpcoming={true} />
+              ))}
+            </div>
+          </section>
+        )}
 
         <div className="text-center pb-12 animate-pulse">
           <div className="inline-flex items-center gap-3 px-8 py-4 bg-slate-900/50 rounded-full border border-indigo-500/20 text-indigo-300 font-bold tracking-widest text-sm uppercase backdrop-blur-sm">
