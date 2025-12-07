@@ -259,7 +259,7 @@ const AdminModal = ({ isOpen, onClose, games, onSave, currentUser }) => {
   const [localConfig, setLocalConfig] = useState({});
 
   useEffect(() => {
-    if (currentUser && currentUser.email === "admin@gamehub.com") {
+    if (currentUser && currentUser.email === "admin@rawfidsgamehub.com") {
       setIsAuthenticated(true);
     } else {
       setIsAuthenticated(false);
