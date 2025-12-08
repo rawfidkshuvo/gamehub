@@ -58,6 +58,7 @@ import {
   LayoutGrid,
   Smartphone,
   Monitor,
+  LifeBuoy,
 } from "lucide-react";
 
 // ---------------------------------------------------------------------------
@@ -75,6 +76,34 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
+
+// ---------------------------------------------------------------------------
+// HELPER: Robust Logging for Mobile
+// ---------------------------------------------------------------------------
+const logGameClick = (game) => {
+  // 1. Stats Increment (Fire & Forget)
+  const statsRef = doc(db, "game_stats", `game_${game.id}`);
+  updateDoc(statsRef, { clicks: increment(1) }).catch(async (err) => {
+    if (err.code === "not-found") await setDoc(statsRef, { clicks: 1 });
+  });
+
+  // 2. Activity Log (Fire & Forget)
+  try {
+    const logsRef = collection(db, "game_click_logs");
+    const userId = auth.currentUser ? auth.currentUser.uid : "unknown";
+
+    addDoc(logsRef, {
+      gameId: game.id,
+      gameTitle: game.title,
+      category: game.category,
+      userId: userId,
+      device: navigator.userAgent,
+      timestamp: serverTimestamp(),
+    });
+  } catch (err) {
+    console.error("Log failed", err);
+  }
+};
 
 // ---------------------------------------------------------------------------
 // STATIC GAME DATA
@@ -131,7 +160,7 @@ const INITIAL_GAMES = [
     color: "from-yellow-500 to-amber-700",
     shadow: "shadow-amber-500/50",
     category: "Strategy",
-    minPlayers: 2,
+    minPlayers: "2",
     maxPlayers: 2,
     hasBots: false,
     link: "https://rawfidkshuvo.github.io/emperor-game/",
@@ -259,6 +288,20 @@ const INITIAL_GAMES = [
     category: "Psychology",
     minPlayers: 2,
     maxPlayers: 2,
+    hasBots: false,
+    link: "#",
+  },
+  {
+    id: 14,
+    title: "Adrift",
+    description:
+      "Stranded on a life raft with dwindling supplies. Vote on who eats, who starves, and who feeds the sharks. Survive 5 days... or join the ghosts below.",
+    icon: <LifeBuoy className="w-12 h-12 text-white" />,
+    color: "from-cyan-600 to-blue-900",
+    shadow: "shadow-cyan-500/50",
+    category: "Survival",
+    minPlayers: 4,
+    maxPlayers: 8,
     hasBots: false,
     link: "#",
   },
@@ -619,7 +662,7 @@ const AdminModal = ({
                               className="py-3 font-mono text-xs text-slate-500"
                               title={log.userId}
                             >
-                              {log.userId === "unknown"
+                              {!log.userId || log.userId === "unknown"
                                 ? "Guest"
                                 : log.userId.substring(0, 8) + "..."}
                             </td>
@@ -728,35 +771,28 @@ const FloatingBackground = ({ games }) => {
   );
 };
 
-// Updated GameCard with Richer Logging
 const GameCard = ({ game, isUpcoming }) => {
-  const handleGameClick = async (e) => {
+  const handleGameClick = (e) => {
     if (isUpcoming) {
       e.preventDefault();
       return;
     }
 
-    try {
-      // 1. Increment Count
-      const statsRef = doc(db, "game_stats", `game_${game.id}`);
-      await updateDoc(statsRef, { clicks: increment(1) }).catch(async (err) => {
-        if (err.code === "not-found") await setDoc(statsRef, { clicks: 1 });
-      });
+    // PREVENT DEFAULT for Manual Control
+    e.preventDefault();
 
-      // 2. Add Detailed Entry to Activity Log
-      const logsRef = collection(db, "game_click_logs");
-      const currentUser = auth.currentUser;
+    // 1. Open new tab immediately (Synchronous) to satisfy popup blockers
+    const newWin = window.open("", "_blank");
 
-      await addDoc(logsRef, {
-        gameId: game.id,
-        gameTitle: game.title,
-        category: game.category,
-        userId: currentUser ? currentUser.uid : "unknown",
-        device: navigator.userAgent,
-        timestamp: serverTimestamp(),
-      });
-    } catch (error) {
-      console.error("Error tracking click:", error);
+    // 2. Fire Logs (Fire & Forget)
+    logGameClick(game);
+
+    // 3. Redirect the new tab
+    if (newWin) {
+      newWin.location.href = game.link;
+    } else {
+      // Fallback
+      window.location.href = game.link;
     }
   };
 
@@ -852,6 +888,18 @@ const GameCard = ({ game, isUpcoming }) => {
 
 const HeroSection = ({ featuredGame }) => {
   if (!featuredGame) return null;
+
+  const handleHeroClick = (e) => {
+    e.preventDefault();
+    const newWin = window.open("", "_blank");
+    logGameClick(featuredGame); // Call helper
+    if (newWin) {
+      newWin.location.href = featuredGame.link;
+    } else {
+      window.location.href = featuredGame.link;
+    }
+  };
+
   return (
     <div className="relative w-full max-w-5xl mx-auto mb-16 rounded-3xl overflow-hidden shadow-2xl border border-slate-700 group animate-in slide-in-from-top-10 duration-700">
       <div
@@ -880,6 +928,7 @@ const HeroSection = ({ featuredGame }) => {
             href={featuredGame.link}
             target="_blank"
             rel="noopener noreferrer"
+            onClick={handleHeroClick}
             className={`inline-flex items-center gap-2 px-8 py-4 rounded-xl bg-white text-slate-900 font-bold hover:bg-slate-200 transition-colors shadow-lg shadow-white/10`}
           >
             Play Now <ArrowRight size={20} />
@@ -970,9 +1019,11 @@ const GameHub = () => {
     ),
   ];
 
+  // Logic: Check if filtering is active
   const isFiltering =
     searchTerm !== "" || selectedCategory !== "All" || playerCount !== 0;
 
+  // Filter Logic
   const filteredGames = useMemo(() => {
     return processedGames
       .filter((game) => {
@@ -992,16 +1043,17 @@ const GameHub = () => {
             matchesSearch && matchesCategory && matchesPlayers && game.visible
           );
         } else {
-          return isPlayable && game.visible;
+          return isPlayable && game.visible; // Main grid only shows playable games by default
         }
       })
-      .sort((a, b) => (b.popularity || 0) - (a.popularity || 0));
+      .sort((a, b) => (b.popularity || 0) - (a.popularity || 0)); // Global Sort by Popularity
   }, [searchTerm, selectedCategory, playerCount, processedGames, isFiltering]);
 
   const upcomingGames = useMemo(() => {
     return processedGames.filter((g) => g.visible && g.isUpcoming);
   }, [processedGames]);
 
+  // Featured & Popular logic (Only consider playable games)
   const popularGames = useMemo(() => {
     return [...processedGames]
       .filter((g) => g.visible && !g.isUpcoming)
@@ -1011,7 +1063,7 @@ const GameHub = () => {
 
   const featuredGame =
     processedGames.find((g) => g.isFeatured && !g.isUpcoming) ||
-    processedGames.find((g) => g.title === "Deep Dive") ||
+    processedGames.find((g) => g.title === "Pirates") ||
     processedGames[0];
 
   const resetFilters = () => {
@@ -1046,6 +1098,7 @@ const GameHub = () => {
           </h1>
         </header>
 
+        {/* HERO SECTION - HIDDEN WHEN FILTERING */}
         {!isFiltering && <HeroSection featuredGame={featuredGame} />}
 
         <div className="max-w-5xl mx-auto mb-12 space-y-6">
@@ -1100,17 +1153,19 @@ const GameHub = () => {
                 </button>
               ))}
             </div>
+            {/* Red Clear Filter Capsule */}
             {isFiltering && (
               <button
                 onClick={resetFilters}
                 className="px-4 py-2 bg-red-900/50 border border-red-500 text-red-200 rounded-full text-sm font-bold flex items-center gap-2 hover:bg-red-900 transition-colors animate-in fade-in"
               >
-                <Trash2 size={14} /> Clear Filters
+                <Trash2 size={14} /> Clear Search & Filters
               </button>
             )}
           </div>
         </div>
 
+        {/* TRENDING SECTION - HIDDEN WHEN FILTERING */}
         {!isFiltering && popularGames.length > 0 && (
           <section className="mb-16 animate-in slide-in-from-bottom-4 duration-700 delay-200">
             <div className="flex items-center gap-2 mb-6">
@@ -1129,6 +1184,7 @@ const GameHub = () => {
           </section>
         )}
 
+        {/* MAIN GAMES GRID */}
         <div className="flex items-center gap-2 mb-6">
           <div className="p-2 bg-slate-800 rounded-lg border border-slate-700">
             <Gamepad2 className="w-5 h-5 text-slate-400" />
@@ -1168,6 +1224,7 @@ const GameHub = () => {
           )}
         </main>
 
+        {/* UPCOMING RELEASES - HIDDEN WHEN FILTERING */}
         {!isFiltering && upcomingGames.length > 0 && (
           <section className="mb-16 animate-in slide-in-from-bottom-4 duration-700">
             <div className="flex items-center gap-2 mb-6">
