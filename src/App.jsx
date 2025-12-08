@@ -152,7 +152,7 @@ const INITIAL_GAMES = [
     minPlayers: 4,
     maxPlayers: 10,
     hasBots: false,
-    complexity: "High",
+    complexity: "Low",
     duration: "10-20m",
     link: "https://rawfidkshuvo.github.io/investigation-game/",
   },
@@ -1153,10 +1153,10 @@ const NewReleaseSlider = ({ games, onGameClick }) => {
     logGameClick(currentGame);
   };
   // Determine badge text and style
-  let badgeText = "Featured Game";
+  let badgeText = "Featured";
   let badgeColor = "bg-emerald-500/20 border-emerald-500/30 text-emerald-300";
   if (currentGame.isUpcoming) {
-    badgeText = "Coming Soon";
+    badgeText = "Upcoming Release";
     badgeColor = "bg-yellow-500/20 border-yellow-500/30 text-yellow-300";
   } else if (currentGame.isNew) {
     badgeText = "New Release";
@@ -1213,7 +1213,7 @@ const NewReleaseSlider = ({ games, onGameClick }) => {
             >
               {currentGame.title}
             </h2>
-            <p className="text-lg text-slate-200 mb-6 leading-relaxed">
+            <p className="text-base text-slate-300 mb-6 leading-relaxed">
               {currentGame.description}
             </p>
 
@@ -1316,12 +1316,12 @@ const GameCard = ({
         <div className="flex justify-between items-start mb-6 h-8">
           <div className="flex gap-2 flex-wrap max-w-[80%]">
             {game.isNew && !isUpcoming && (
-              <span className="bg-red-700 text-white text-[10px] font-bold px-2 py-1 rounded-full shadow-lg animate-pulse flex items-center gap-1">
+              <span className="bg-red-700 text-white text-[10px] font-bold px-2 py-1 rounded-full shadow-lg animate-pulse flex items-center gap-1 shadow-red-500/50">
                 <Sparkles size={10} /> NEW
               </span>
             )}
             {game.isHot && !isUpcoming && (
-              <span className="bg-orange-700 text-white text-[10px] font-bold px-2 py-1 rounded-full shadow-lg flex items-center gap-1">
+              <span className="bg-orange-700 text-white text-[10px] font-bold px-2 py-1 rounded-full shadow-lg flex items-center gap-1 shadow-orange-500/50">
                 <Flame size={10} /> HOT
               </span>
             )}
@@ -1331,7 +1331,7 @@ const GameCard = ({
               </span>
             )}
             {isUpcoming && (
-              <span className="bg-pink-600 text-white text-[10px] font-bold px-2 py-1 rounded-full shadow-lg animate-pulse flex items-center gap-1 shadow-pink-500/50">
+              <span className="bg-yellow-600 text-white text-[10px] font-bold px-2 py-1 rounded-full shadow-lg animate-pulse flex items-center gap-1 shadow-yellow-500/50">
                 <Clock size={10} /> COMING SOON
               </span>
             )}
@@ -1671,6 +1671,22 @@ const GameHub = () => {
     <div className="min-h-screen bg-slate-950 text-slate-200 font-sans selection:bg-indigo-500 selection:text-white relative flex flex-col">
       <FloatingBackground games={processedGames} />
 
+      {/* RAINBOW ANIMATION STYLE */}
+      <style>{`
+        @keyframes rainbow {
+          0%, 100% { color: #9333ea; } /* purple-600 */
+          14% { color: #16a34a; } /* green-600 */
+          28% { color: #dc2626; } /* red-600 */
+          42% { color: #eab308; } /* yellow-500 */
+          57% { color: #ea580c; } /* orange-600 */
+          71% { color: #0891b2; } /* cyan-600 */
+          85% { color: #db2777; } /* pink-600 */
+        }
+        .animate-rainbow {
+          animation: rainbow 8s linear infinite;
+        }
+      `}</style>
+
       <AdminModal
         isOpen={isAdminOpen}
         onClose={() => setIsAdminOpen(false)}
@@ -1698,7 +1714,8 @@ const GameHub = () => {
             </span>
           </div>
           <h1 className="text-5xl md:text-7xl font-black text-transparent bg-clip-text bg-gradient-to-r from-white via-slate-200 to-slate-400 tracking-tight mb-4">
-            Board Games <span className="text-indigo-500">Online</span>
+            Board Games{" "}
+            <span className="animate-pulse animate-rainbow">Online</span>
           </h1>
         </header>
 
@@ -1706,13 +1723,21 @@ const GameHub = () => {
           <MaintenanceContent />
         ) : (
           <>
+            {/* NEW RELEASES SLIDER (FEATURED SECTION) */}
+            {!isFiltering && (
+              <NewReleaseSlider
+                games={processedGames}
+                onGameClick={handleGamePlay}
+              />
+            )}
+
             {/* RECENTLY PLAYED */}
             {!isFiltering && historyGames.length > 0 && (
-              <div className="max-w-5xl mx-auto mb-8 animate-in slide-in-from-top-4">
+              <div className="w-full max-w-5xl mx-auto mb-8 animate-in slide-in-from-top-4 min-w-0">
                 <div className="flex items-center gap-2 mb-3 text-slate-400 text-sm font-bold uppercase tracking-wider">
                   <History size={16} /> Jump back in
                 </div>
-                <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide">
+                <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide w-full">
                   {historyGames.map((game) => (
                     <div
                       key={game.id}
@@ -1728,7 +1753,7 @@ const GameHub = () => {
                         })}
                       </div>
                       <div>
-                        <div className="text-white font-bold text-sm">
+                        <div className="text-white font-bold text-sm truncate max-w-[150px]">
                           {game.title}
                         </div>
                         <div className="text-slate-500 text-xs">Resume</div>
@@ -1737,14 +1762,6 @@ const GameHub = () => {
                   ))}
                 </div>
               </div>
-            )}
-
-            {/* NEW RELEASES SLIDER (FEATURED SECTION) */}
-            {!isFiltering && (
-              <NewReleaseSlider
-                games={processedGames}
-                onGameClick={handleGamePlay}
-              />
             )}
 
             {/* FILTERS */}
@@ -1787,8 +1804,7 @@ const GameHub = () => {
                   onClick={() => setIsRandomModalOpen(true)}
                   className="px-6 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-xl text-white font-bold shadow-lg shadow-indigo-500/20 hover:scale-105 transition-transform flex items-center gap-2 whitespace-nowrap"
                 >
-                  <Shuffle size={20} />{" "}
-                  <span className="hidden md:inline">Pick for me</span>
+                  <Shuffle size={20} /> <span className="">Pick for me</span>
                 </button>
               </div>
 
@@ -1893,7 +1909,7 @@ const GameHub = () => {
               <h2 className="text-2xl font-bold text-white tracking-wide">
                 {isFiltering
                   ? `Search Results (${filteredGames.length})`
-                  : "All Games (Most Popular)"}
+                  : "All Games"}
               </h2>
             </div>
 
@@ -1932,8 +1948,8 @@ const GameHub = () => {
             {!isFiltering && upcomingGames.length > 0 && (
               <section className="mb-16 animate-in slide-in-from-bottom-4 duration-700">
                 <div className="flex items-center gap-2 mb-6">
-                  <div className="p-2 bg-pink-500/10 rounded-lg border border-pink-500/20">
-                    <Clock className="w-5 h-5 text-pink-400" />
+                  <div className="p-2 bg-yellow-500/10 rounded-lg border border-yellow-500/20">
+                    <Clock className="w-5 h-5 text-yellow-400" />
                   </div>
                   <h2 className="text-2xl font-bold text-white tracking-wide">
                     Upcoming Releases
@@ -1987,5 +2003,4 @@ const GameHub = () => {
     </div>
   );
 };
-
 export default GameHub;
