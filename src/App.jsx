@@ -817,12 +817,12 @@ const GameCard = ({ game, isUpcoming }) => {
         <div className="flex justify-between items-start mb-6 h-8">
           <div className="flex gap-2 flex-wrap">
             {game.isNew && !isUpcoming && (
-              <span className="bg-emerald-500 text-white text-[10px] font-bold px-2 py-1 rounded-full shadow-lg animate-pulse flex items-center gap-1">
+              <span className="bg-red-700 text-white text-[10px] font-bold px-2 py-1 rounded-full shadow-lg animate-pulse flex items-center gap-1">
                 <Sparkles size={10} /> NEW
               </span>
             )}
             {game.isHot && !isUpcoming && (
-              <span className="bg-orange-500 text-white text-[10px] font-bold px-2 py-1 rounded-full shadow-lg flex items-center gap-1">
+              <span className="bg-orange-700 text-white text-[10px] font-bold px-2 py-1 rounded-full shadow-lg flex items-center gap-1">
                 <Flame size={10} /> HOT
               </span>
             )}
@@ -832,7 +832,7 @@ const GameCard = ({ game, isUpcoming }) => {
               </span>
             )}
             {isUpcoming && (
-              <span className="bg-pink-600 text-white text-[10px] font-bold px-2 py-1 rounded-full shadow-lg flex items-center gap-1 shadow-pink-500/50">
+              <span className="bg-pink-600 text-white text-[10px] font-bold px-2 py-1 rounded-full shadow-lg animate-pulse flex items-center gap-1 shadow-pink-500/50">
                 <Clock size={10} /> COMING SOON
               </span>
             )}
@@ -915,7 +915,7 @@ const HeroSection = ({ featuredGame }) => {
           })}
         </div>
         <div className="flex-1">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 text-xs font-bold uppercase tracking-widest mb-4">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 text-xs font-bold uppercase animate-pulse tracking-widest mb-4">
             <Sparkles size={12} /> Featured Release
           </div>
           <h2 className="text-3xl md:text-5xl font-black text-white mb-4 tracking-tight">
