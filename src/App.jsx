@@ -21,7 +21,6 @@ import {
   orderBy,
   limit,
 } from "firebase/firestore";
-
 // --- ICONS ---
 // Note: PieChart is aliased to PieIcon to avoid conflict with Recharts
 import {
@@ -71,7 +70,6 @@ import {
   PieChart as PieIcon,
   Laptop,
 } from "lucide-react";
-
 // --- CHARTS ---
 import {
   BarChart,
@@ -85,7 +83,6 @@ import {
   Cell,
   Legend,
 } from "recharts";
-
 // ---------------------------------------------------------------------------
 // FIREBASE CONFIGURATION
 // ---------------------------------------------------------------------------
@@ -97,11 +94,9 @@ const firebaseConfig = {
   messagingSenderId: "586559578902",
   appId: "1:586559578902:web:91da4fa4ace038d16aa637",
 };
-
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
-
 // ---------------------------------------------------------------------------
 // HELPER: Robust Logging for Mobile
 // ---------------------------------------------------------------------------
@@ -110,11 +105,9 @@ const logGameClick = (game) => {
   updateDoc(statsRef, { clicks: increment(1) }).catch(async (err) => {
     if (err.code === "not-found") await setDoc(statsRef, { clicks: 1 });
   });
-
   try {
     const logsRef = collection(db, "game_click_logs");
     const userId = auth.currentUser ? auth.currentUser.uid : "unknown";
-
     addDoc(logsRef, {
       gameId: game.id,
       gameTitle: game.title,
@@ -127,7 +120,6 @@ const logGameClick = (game) => {
     console.error("Log failed", err);
   }
 };
-
 // ---------------------------------------------------------------------------
 // GAME DATA
 // ---------------------------------------------------------------------------
@@ -160,7 +152,7 @@ const INITIAL_GAMES = [
     minPlayers: 4,
     maxPlayers: 10,
     hasBots: false,
-    complexity: "Low",
+    complexity: "High",
     duration: "10-20m",
     link: "https://rawfidkshuvo.github.io/investigation-game/",
   },
@@ -636,11 +628,11 @@ const AdminModal = ({
           </div>
         ) : (
           <>
-            <div className="flex border-b border-slate-800 bg-slate-900/50 justify-between pr-6">
-              <div className="flex">
+            <div className="flex flex-col md:flex-row border-b border-slate-800 bg-slate-900/50 justify-between md:pr-6">
+              <div className="flex overflow-x-auto">
                 <button
                   onClick={() => setActiveTab("config")}
-                  className={`px-6 py-4 text-sm font-bold flex items-center gap-2 transition-colors ${
+                  className={`px-6 py-4 text-sm font-bold flex items-center gap-2 transition-colors whitespace-nowrap ${
                     activeTab === "config"
                       ? "text-white border-b-2 border-indigo-500 bg-slate-800"
                       : "text-slate-400 hover:text-white"
@@ -650,7 +642,7 @@ const AdminModal = ({
                 </button>
                 <button
                   onClick={() => setActiveTab("logs")}
-                  className={`px-6 py-4 text-sm font-bold flex items-center gap-2 transition-colors ${
+                  className={`px-6 py-4 text-sm font-bold flex items-center gap-2 transition-colors whitespace-nowrap ${
                     activeTab === "logs"
                       ? "text-white border-b-2 border-indigo-500 bg-slate-800"
                       : "text-slate-400 hover:text-white"
@@ -660,7 +652,7 @@ const AdminModal = ({
                 </button>
               </div>
 
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-3 p-4 md:p-0">
                 <span className="text-xs font-bold uppercase text-slate-400">
                   Maintenance Mode
                 </span>
@@ -679,110 +671,118 @@ const AdminModal = ({
               </div>
             </div>
 
-            <div className="flex-1 overflow-y-auto p-6">
+            <div className="flex-1 overflow-y-auto p-4 md:p-6">
               {activeTab === "config" && (
-                <table className="w-full text-left border-collapse">
-                  <thead>
-                    <tr className="text-slate-400 text-xs uppercase tracking-wider border-b border-slate-800">
-                      <th className="pb-3 pl-2">Game</th>
-                      <th className="pb-3 text-center">Featured</th>
-                      <th className="pb-3 text-center">Visible</th>
-                      <th className="pb-3 text-center">New</th>
-                      <th className="pb-3 text-center">Hot</th>
-                      <th className="pb-3 text-center text-indigo-400">
-                        Upcoming
-                      </th>
-                      <th className="pb-3 text-center text-emerald-400">
-                        Real Clicks
-                      </th>
-                      <th className="pb-3 text-center text-orange-400">
-                        Boost
-                      </th>
-                      <th className="pb-3 text-center">Total</th>
-                    </tr>
-                  </thead>
-                  <tbody className="text-sm">
-                    {games.map((game) => {
-                      const realClicks = realClickData[game.id] || 0;
-                      const manualBoost = localConfig[game.id]?.popularity || 0;
-                      return (
-                        <tr
-                          key={game.id}
-                          className="border-b border-slate-800/50 hover:bg-slate-800/30 transition-colors"
-                        >
-                          <td className="py-3 pl-2 font-medium text-slate-200">
-                            {game.title}
-                          </td>
-                          <td className="py-3 text-center">
-                            <div className="flex justify-center">
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left border-collapse min-w-[800px]">
+                    <thead>
+                      <tr className="text-slate-400 text-xs uppercase tracking-wider border-b border-slate-800">
+                        <th className="pb-3 pl-2">Game</th>
+                        <th className="pb-3 text-center">Featured</th>
+                        <th className="pb-3 text-center">Visible</th>
+                        <th className="pb-3 text-center">New</th>
+                        <th className="pb-3 text-center">Hot</th>
+                        <th className="pb-3 text-center text-indigo-400">
+                          Upcoming
+                        </th>
+                        <th className="pb-3 text-center text-emerald-400">
+                          Real Clicks
+                        </th>
+                        <th className="pb-3 text-center text-orange-400">
+                          Boost
+                        </th>
+                        <th className="pb-3 text-center">Total</th>
+                      </tr>
+                    </thead>
+                    <tbody className="text-sm">
+                      {games.map((game) => {
+                        const realClicks = realClickData[game.id] || 0;
+                        const manualBoost =
+                          localConfig[game.id]?.popularity || 0;
+                        return (
+                          <tr
+                            key={game.id}
+                            className="border-b border-slate-800/50 hover:bg-slate-800/30 transition-colors"
+                          >
+                            <td className="py-3 pl-2 font-medium text-slate-200">
+                              {game.title}
+                            </td>
+                            <td className="py-3 text-center">
+                              <div className="flex justify-center">
+                                <input
+                                  type="radio"
+                                  name="featuredGame"
+                                  checked={
+                                    localConfig[game.id]?.isFeatured || false
+                                  }
+                                  onChange={() => handleFeaturedSelect(game.id)}
+                                  className="w-4 h-4 accent-yellow-500 cursor-pointer"
+                                />
+                              </div>
+                            </td>
+                            <td className="py-3 text-center">
                               <input
-                                type="radio"
-                                name="featuredGame"
-                                checked={
-                                  localConfig[game.id]?.isFeatured || false
+                                type="checkbox"
+                                checked={localConfig[game.id]?.visible ?? true}
+                                onChange={() =>
+                                  handleToggle(game.id, "visible")
                                 }
-                                onChange={() => handleFeaturedSelect(game.id)}
-                                className="w-4 h-4 accent-yellow-500 cursor-pointer"
+                                className="w-4 h-4 accent-emerald-500 cursor-pointer"
                               />
-                            </div>
-                          </td>
-                          <td className="py-3 text-center">
-                            <input
-                              type="checkbox"
-                              checked={localConfig[game.id]?.visible ?? true}
-                              onChange={() => handleToggle(game.id, "visible")}
-                              className="w-4 h-4 accent-emerald-500 cursor-pointer"
-                            />
-                          </td>
-                          <td className="py-3 text-center">
-                            <input
-                              type="checkbox"
-                              checked={localConfig[game.id]?.isNew ?? false}
-                              onChange={() => handleToggle(game.id, "isNew")}
-                              className="w-4 h-4 accent-indigo-500 cursor-pointer"
-                            />
-                          </td>
-                          <td className="py-3 text-center">
-                            <input
-                              type="checkbox"
-                              checked={localConfig[game.id]?.isHot ?? false}
-                              onChange={() => handleToggle(game.id, "isHot")}
-                              className="w-4 h-4 accent-orange-500 cursor-pointer"
-                            />
-                          </td>
-                          <td className="py-3 text-center">
-                            <input
-                              type="checkbox"
-                              checked={
-                                localConfig[game.id]?.isUpcoming ?? false
-                              }
-                              onChange={() =>
-                                handleToggle(game.id, "isUpcoming")
-                              }
-                              className="w-4 h-4 accent-pink-500 cursor-pointer"
-                            />
-                          </td>
-                          <td className="py-3 text-center text-emerald-400 font-mono">
-                            {realClicks}
-                          </td>
-                          <td className="py-3 text-center">
-                            <input
-                              type="number"
-                              value={manualBoost}
-                              onChange={(e) =>
-                                handlePopularityChange(game.id, e.target.value)
-                              }
-                              className="w-20 bg-slate-950 border border-slate-700 rounded p-1 text-center text-white focus:border-indigo-500 outline-none"
-                            />
-                          </td>
-                          <td className="py-3 text-center text-slate-400 font-bold">
-                            {realClicks + manualBoost}
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
+                            </td>
+                            <td className="py-3 text-center">
+                              <input
+                                type="checkbox"
+                                checked={localConfig[game.id]?.isNew ?? false}
+                                onChange={() => handleToggle(game.id, "isNew")}
+                                className="w-4 h-4 accent-indigo-500 cursor-pointer"
+                              />
+                            </td>
+                            <td className="py-3 text-center">
+                              <input
+                                type="checkbox"
+                                checked={localConfig[game.id]?.isHot ?? false}
+                                onChange={() => handleToggle(game.id, "isHot")}
+                                className="w-4 h-4 accent-orange-500 cursor-pointer"
+                              />
+                            </td>
+                            <td className="py-3 text-center">
+                              <input
+                                type="checkbox"
+                                checked={
+                                  localConfig[game.id]?.isUpcoming ?? false
+                                }
+                                onChange={() =>
+                                  handleToggle(game.id, "isUpcoming")
+                                }
+                                className="w-4 h-4 accent-pink-500 cursor-pointer"
+                              />
+                            </td>
+                            <td className="py-3 text-center text-emerald-400 font-mono">
+                              {realClicks}
+                            </td>
+                            <td className="py-3 text-center">
+                              <input
+                                type="number"
+                                value={manualBoost}
+                                onChange={(e) =>
+                                  handlePopularityChange(
+                                    game.id,
+                                    e.target.value
+                                  )
+                                }
+                                className="w-20 bg-slate-950 border border-slate-700 rounded p-1 text-center text-white focus:border-indigo-500 outline-none"
+                              />
+                            </td>
+                            <td className="py-3 text-center text-slate-400 font-bold">
+                              {realClicks + manualBoost}
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
               )}
 
               {activeTab === "logs" && (
@@ -942,7 +942,7 @@ const AdminModal = ({
                       <List size={14} /> Recent Activity Log
                     </h3>
                     <div className="overflow-x-auto">
-                      <table className="w-full text-left border-collapse">
+                      <table className="w-full text-left border-collapse min-w-[600px]">
                         <thead>
                           <tr className="text-slate-400 text-xs uppercase tracking-wider border-b border-slate-800">
                             <th className="pb-3 pl-2">Time</th>
@@ -1048,7 +1048,6 @@ const RandomGameModal = ({ isOpen, onClose, games, onSelect }) => {
       return () => clearInterval(interval);
     }
   }, [isOpen, games]);
-
   if (!isOpen || !displayedGame) return null;
 
   return (
@@ -1098,7 +1097,6 @@ const RandomGameModal = ({ isOpen, onClose, games, onSelect }) => {
     </div>
   );
 };
-
 const NewReleaseSlider = ({ games, onGameClick }) => {
   const heroGames = useMemo(() => {
     // Strategy: Combine NEW, FEATURED, and UPCOMING games
@@ -1118,7 +1116,6 @@ const NewReleaseSlider = ({ games, onGameClick }) => {
     }
     return games.filter((g) => g.isHot && g.visible).slice(0, 3);
   }, [games]);
-
   const [currentIndex, setCurrentIndex] = useState(0);
   const timeoutRef = useRef(null);
 
@@ -1134,21 +1131,18 @@ const NewReleaseSlider = ({ games, onGameClick }) => {
 
     return () => resetTimeout();
   }, [currentIndex, heroGames.length]);
-
   const handleManualSlide = (idx) => {
     resetTimeout();
     setCurrentIndex(idx);
   };
 
   if (!heroGames || heroGames.length === 0) return null;
-
   // SAFETY FIX: Ensure currentIndex is within bounds
   const safeIndex = currentIndex >= heroGames.length ? 0 : currentIndex;
   const currentGame = heroGames[safeIndex];
 
   // Extra safety guard
   if (!currentGame) return null;
-
   const handleHeroClick = (e) => {
     e.preventDefault();
     // Disable click for upcoming games
@@ -1158,11 +1152,9 @@ const NewReleaseSlider = ({ games, onGameClick }) => {
     window.open(currentGame.link, "_blank");
     logGameClick(currentGame);
   };
-
   // Determine badge text and style
   let badgeText = "Featured Game";
   let badgeColor = "bg-emerald-500/20 border-emerald-500/30 text-emerald-300";
-
   if (currentGame.isUpcoming) {
     badgeText = "Coming Soon";
     badgeColor = "bg-yellow-500/20 border-yellow-500/30 text-yellow-300";
@@ -1179,7 +1171,7 @@ const NewReleaseSlider = ({ games, onGameClick }) => {
       />
       <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" />
 
-      <div className="relative p-8 md:p-12 flex flex-col md:flex-row items-center gap-8 text-center md:text-left min-h-[400px]">
+      <div className="relative p-6 md:p-12 flex flex-col md:flex-row items-center gap-8 text-center md:text-left min-h-[400px]">
         {/* Left Arrow (Desktop) */}
         <button
           onClick={() =>
@@ -1285,13 +1277,11 @@ const GameCard = ({
       window.location.href = game.link;
     }
   };
-
   const handleFavorite = (e) => {
     e.preventDefault();
     e.stopPropagation();
     onToggleFavorite(game.id);
   };
-
   return (
     <a
       href={isUpcoming ? undefined : game.link}
@@ -1439,7 +1429,6 @@ const FloatingBackground = ({ games }) => {
       };
     });
   }, [games]);
-
   return (
     <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
       <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-slate-900 via-slate-950 to-black" />
@@ -1463,11 +1452,12 @@ const FloatingBackground = ({ games }) => {
         </div>
       ))}
       <div className="absolute top-0 left-0 w-full h-full bg-slate-950/60 backdrop-blur-[1px]" />
-      <style>{`@keyframes float { 0% { transform: translate(0, 0) rotate(0deg); } 50% { transform: translate(var(--tx), var(--ty)) rotate(180deg); } 100% { transform: translate(0, 0) rotate(360deg); } } .animate-float { animation-name: float; animation-timing-function: ease-in-out; animation-iteration-count: infinite; }`}</style>
+      <style>{`@keyframes float { 0% { transform: translate(0, 0) rotate(0deg);
+} 50% { transform: translate(var(--tx), var(--ty)) rotate(180deg); } 100% { transform: translate(0, 0) rotate(360deg); } } .animate-float { animation-name: float;
+animation-timing-function: ease-in-out; animation-iteration-count: infinite; }`}</style>
     </div>
   );
 };
-
 // --- MAIN COMPONENT ---
 const GameHub = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -1475,16 +1465,13 @@ const GameHub = () => {
   const [playerCount, setPlayerCount] = useState(0);
   const [selectedComplexity, setSelectedComplexity] = useState("All");
   const [selectedDuration, setSelectedDuration] = useState("All");
-
   const [favorites, setFavorites] = useState(new Set());
   const [recentlyPlayed, setRecentlyPlayed] = useState([]);
   const [isRandomModalOpen, setIsRandomModalOpen] = useState(false);
-
   const [gameOverrides, setGameOverrides] = useState({});
   const [clickStats, setClickStats] = useState({});
   const [isAdminOpen, setIsAdminOpen] = useState(false);
   const [user, setUser] = useState(null);
-
   const [maintenanceMode, setMaintenanceMode] = useState(false);
 
   useEffect(() => {
@@ -1497,7 +1484,6 @@ const GameHub = () => {
       setRecentlyPlayed(JSON.parse(storedHistory));
     }
   }, []);
-
   useEffect(() => {
     const unsubConfig = onSnapshot(
       doc(db, "game_hub_settings", "config"),
@@ -1529,7 +1515,6 @@ const GameHub = () => {
       unsubAuth();
     };
   }, []);
-
   const handleAdminSave = async (newConfig, newMaintenanceMode) => {
     await setDoc(
       doc(db, "game_hub_settings", "config"),
@@ -1577,7 +1562,6 @@ const GameHub = () => {
       };
     });
   }, [gameOverrides, clickStats]);
-
   const categories = [
     "All",
     ...new Set(
@@ -1586,7 +1570,6 @@ const GameHub = () => {
         .map((g) => g.category)
     ),
   ];
-
   const isFiltering =
     searchTerm !== "" ||
     selectedCategory !== "All" ||
@@ -1620,7 +1603,6 @@ const GameHub = () => {
             : true);
 
         const isPlayable = !game.isUpcoming;
-
         if (selectedCategory === "Favorites") {
           return favorites.has(game.id) && game.visible;
         }
@@ -1649,25 +1631,21 @@ const GameHub = () => {
     isFiltering,
     favorites,
   ]);
-
   const upcomingGames = useMemo(
     () => processedGames.filter((g) => g.visible && g.isUpcoming),
     [processedGames]
   );
-
   const popularGames = useMemo(() => {
     return [...processedGames]
       .filter((g) => g.visible && !g.isUpcoming)
       .sort((a, b) => (b.popularity || 0) - (a.popularity || 0))
       .slice(0, 2);
   }, [processedGames]);
-
   const historyGames = useMemo(() => {
     return recentlyPlayed
       .map((id) => processedGames.find((g) => g.id === id))
       .filter(Boolean);
   }, [recentlyPlayed, processedGames]);
-
   const handleRandomSelect = (game) => {
     setIsRandomModalOpen(false);
     handleGamePlay(game);
