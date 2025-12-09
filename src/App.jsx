@@ -69,6 +69,8 @@ import {
   ChevronRight,
   PieChart as PieIcon,
   Laptop,
+  Hourglass,
+  Cpu,
 } from "lucide-react";
 // --- CHARTS ---
 import {
@@ -348,6 +350,74 @@ const INITIAL_GAMES = [
     duration: "20m",
     link: "#",
   },
+  {
+    id: 15,
+    title: "Guild of Shadows",
+    description:
+      "Assemble a team of thieves, assassins, and merchants to build the most powerful guild. Steal gold from rivals, protect your assets, and race to 15 gold in this strategic engine-building game.",
+    icon: <Ghost className="w-12 h-12 text-white" />,
+    color: "from-zinc-900 to-purple-900",
+    shadow: "shadow-purple-900/50",
+    category: "Strategy",
+    minPlayers: 2,
+    maxPlayers: 6,
+    hasBots: false,
+    complexity: "Medium",
+    duration: "20-30m",
+    link: "#",
+    isNew: true,
+  },
+  {
+    id: 16,
+    title: "Chrono Tactics",
+    description:
+      "A duel across three timelines: Past, Present, and Future. Deploy units to influence the flow of time. A victory in the past ripples forward to buff your future army. Defeat the enemy commander to secure the timeline.",
+    icon: <Hourglass className="w-12 h-12 text-white" />,
+    color: "from-cyan-600 to-blue-900",
+    shadow: "shadow-cyan-500/50",
+    category: "Strategy",
+    minPlayers: 2,
+    maxPlayers: 2,
+    hasBots: false,
+    complexity: "High",
+    duration: "15m",
+    link: "#",
+    isNew: true,
+  },
+  {
+    id: 17,
+    title: "Masquerade Protocol",
+    description:
+      "You are a rogue AI attending a digital gala. Every player has a public Avatar and a hidden Directive (win condition). Trade data packets, hack your rivals, and activate your Glitch ability to seize control... but be warned, glitching reveals your true nature.",
+    icon: <Cpu className="w-12 h-12 text-white" />,
+    color: "from-fuchsia-600 to-cyan-700",
+    shadow: "shadow-fuchsia-500/50",
+    category: "Social Deduction",
+    minPlayers: 3,
+    maxPlayers: 8,
+    hasBots: false,
+    complexity: "Medium",
+    duration: "20m",
+    link: "#",
+    isNew: true,
+  },
+  {
+    id: 18,
+    title: "Paper Oceans",
+    description:
+      "Craft your hand in this colorful set-collection game. Draft cards, play duo effects, and push your luck to end the round. Will you stop safely or bet it all on a Last Chance?",
+    icon: <Anchor className="w-12 h-12 text-white" />,
+    color: "from-blue-500 to-cyan-400",
+    shadow: "shadow-cyan-500/50",
+    category: "Strategy",
+    minPlayers: 2,
+    maxPlayers: 4,
+    hasBots: false,
+    complexity: "Medium",
+    duration: "15-20m",
+    link: "#",
+    isNew: true,
+  },
 ];
 
 // ---------------------------------------------------------------------------
@@ -410,6 +480,7 @@ const AdminModal = ({
           isHot: g.isHot,
           isFeatured: g.isFeatured || false,
           isUpcoming: g.isUpcoming || false,
+          maintenance: g.maintenance || false,
           popularity: g.manualBoost || 0,
         };
       });
@@ -654,7 +725,7 @@ const AdminModal = ({
 
               <div className="flex items-center gap-3 p-4 md:p-0">
                 <span className="text-xs font-bold uppercase text-slate-400">
-                  Maintenance Mode
+                  Global Maintenance
                 </span>
                 <div
                   onClick={() => setMaintenanceMode(!maintenanceMode)}
@@ -680,6 +751,9 @@ const AdminModal = ({
                         <th className="pb-3 pl-2">Game</th>
                         <th className="pb-3 text-center">Featured</th>
                         <th className="pb-3 text-center">Visible</th>
+                        <th className="pb-3 text-center text-red-400" title="Maintenance Mode">
+                          <Hammer size={14} className="mx-auto" />
+                        </th>
                         <th className="pb-3 text-center">New</th>
                         <th className="pb-3 text-center">Hot</th>
                         <th className="pb-3 text-center text-indigo-400">
@@ -728,6 +802,14 @@ const AdminModal = ({
                                   handleToggle(game.id, "visible")
                                 }
                                 className="w-4 h-4 accent-emerald-500 cursor-pointer"
+                              />
+                            </td>
+                            <td className="py-3 text-center">
+                              <input
+                                type="checkbox"
+                                checked={localConfig[game.id]?.maintenance ?? false}
+                                onChange={() => handleToggle(game.id, "maintenance")}
+                                className="w-4 h-4 accent-red-500 cursor-pointer"
                               />
                             </td>
                             <td className="py-3 text-center">
@@ -1086,11 +1168,19 @@ const RandomGameModal = ({ isOpen, onClose, games, onSelect }) => {
           <p className="text-slate-400 mb-6">{displayedGame.description}</p>
 
           <button
-            disabled={isSpinning}
+            disabled={isSpinning || displayedGame.maintenance}
             onClick={() => onSelect(displayedGame)}
-            className="w-full py-4 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl flex items-center justify-center gap-2 transition-colors disabled:opacity-50"
+            className="w-full py-4 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl flex items-center justify-center gap-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Play Now <ArrowRight size={20} />
+            {displayedGame.maintenance ? (
+              <>
+                <Hammer size={20} /> Under Maintenance
+              </>
+            ) : (
+              <>
+                Play Now <ArrowRight size={20} />
+              </>
+            )}
           </button>
         </div>
       </div>
@@ -1145,8 +1235,7 @@ const NewReleaseSlider = ({ games, onGameClick }) => {
   if (!currentGame) return null;
   const handleHeroClick = (e) => {
     e.preventDefault();
-    // Disable click for upcoming games
-    if (currentGame.isUpcoming) return;
+    if (currentGame.isUpcoming || currentGame.maintenance) return;
 
     onGameClick(currentGame);
     window.open(currentGame.link, "_blank");
@@ -1157,7 +1246,10 @@ const NewReleaseSlider = ({ games, onGameClick }) => {
   let badgeColor = "bg-emerald-500/20 border-emerald-500/30 text-emerald-300";
   if (currentGame.isUpcoming) {
     badgeText = "Upcoming Release";
-    badgeColor = "bg-yellow-500/20 border-yellow-500/30 text-yellow-300";
+    badgeColor = "bg-pink-500/20 border-pink-500/30 text-pink-300";
+  } else if (currentGame.maintenance) {
+    badgeText = "Maintenance Break";
+    badgeColor = "bg-orange-500/20 border-orange-500/30 text-orange-300";
   } else if (currentGame.isNew) {
     badgeText = "New Release";
     badgeColor = "bg-red-700/20 border-red-500/30 text-red-400";
@@ -1201,6 +1293,8 @@ const NewReleaseSlider = ({ games, onGameClick }) => {
             >
               {currentGame.isUpcoming ? (
                 <Clock size={12} />
+              ) : currentGame.maintenance ? (
+                <Hammer size={12} />
               ) : (
                 <Sparkles size={12} />
               )}{" "}
@@ -1217,13 +1311,26 @@ const NewReleaseSlider = ({ games, onGameClick }) => {
               {currentGame.description}
             </p>
 
-            {/* Play Button - Hidden for Upcoming Games */}
+            {/* Play Button - Hidden for Upcoming/Maintenance Games */}
             {!currentGame.isUpcoming && (
               <button
                 onClick={handleHeroClick}
-                className="inline-flex items-center gap-2 px-8 py-4 rounded-xl bg-white text-slate-900 font-bold hover:bg-slate-200 transition-colors shadow-lg shadow-white/10"
+                disabled={currentGame.maintenance}
+                className={`inline-flex items-center gap-2 px-8 py-4 rounded-xl font-bold shadow-lg transition-colors ${
+                  currentGame.maintenance
+                    ? "bg-slate-700 text-slate-400 cursor-not-allowed border border-slate-600"
+                    : "bg-white text-slate-900 hover:bg-slate-200 shadow-white/10"
+                }`}
               >
-                Play Now <ArrowRight size={20} />
+                {currentGame.maintenance ? (
+                  <>
+                    <Hammer size={20} /> Under Maintenance
+                  </>
+                ) : (
+                  <>
+                    Play Now <ArrowRight size={20} />
+                  </>
+                )}
               </button>
             )}
           </div>
@@ -1263,11 +1370,9 @@ const GameCard = ({
   onGameClick,
 }) => {
   const handleClick = (e) => {
-    if (isUpcoming) {
-      e.preventDefault();
-      return;
-    }
     e.preventDefault();
+    if (isUpcoming || game.maintenance) return;
+
     onGameClick(game);
     const newWin = window.open("", "_blank");
     logGameClick(game);
@@ -1284,19 +1389,23 @@ const GameCard = ({
   };
   return (
     <a
-      href={isUpcoming ? undefined : game.link}
+      href={isUpcoming || game.maintenance ? undefined : game.link}
       target="_blank"
       rel="noopener noreferrer"
       onClick={handleClick}
       className={`group relative block h-full animate-in fade-in zoom-in duration-500 ${
-        isUpcoming ? "cursor-default opacity-80" : "cursor-pointer"
+        isUpcoming || game.maintenance
+          ? "cursor-default opacity-80"
+          : "cursor-pointer"
       }`}
     >
       <div
         className={`absolute -inset-0.5 bg-gradient-to-r ${
           game.color
         } rounded-2xl opacity-0 ${
-          isUpcoming ? "group-hover:opacity-30" : "group-hover:opacity-75"
+          isUpcoming || game.maintenance
+            ? "group-hover:opacity-30"
+            : "group-hover:opacity-75"
         } blur transition duration-500 group-hover:duration-200`}
       />
       <div className="relative h-full flex flex-col bg-slate-900 rounded-xl p-6 border border-slate-800 hover:border-transparent transition-colors duration-300">
@@ -1315,23 +1424,28 @@ const GameCard = ({
 
         <div className="flex justify-between items-start mb-6 h-8">
           <div className="flex gap-2 flex-wrap max-w-[80%]">
-            {game.isNew && !isUpcoming && (
+            {game.maintenance && (
+              <span className="bg-orange-700/50 border border-orange-500 text-orange-200 text-[10px] font-bold px-2 py-1 rounded-full shadow-lg flex items-center gap-1 animate-pulse">
+                <Hammer size={10} /> MAINTENANCE BREAK
+              </span>
+            )}
+            {!game.maintenance && game.isNew && !isUpcoming && (
               <span className="bg-red-700 text-white text-[10px] font-bold px-2 py-1 rounded-full shadow-lg animate-pulse flex items-center gap-1 shadow-red-500/50">
                 <Sparkles size={10} /> NEW
               </span>
             )}
-            {game.isHot && !isUpcoming && (
+            {!game.maintenance && game.isHot && !isUpcoming && (
               <span className="bg-orange-700 text-white text-[10px] font-bold px-2 py-1 rounded-full shadow-lg flex items-center gap-1 shadow-orange-500/50">
                 <Flame size={10} /> HOT
               </span>
             )}
-            {game.isPopular && !isUpcoming && (
+            {!game.maintenance && game.isPopular && !isUpcoming && (
               <span className="bg-blue-600 text-white text-[10px] font-bold px-2 py-1 rounded-full shadow-lg flex items-center gap-1 shadow-blue-500/50">
                 <Crown size={10} /> POPULAR
               </span>
             )}
             {isUpcoming && (
-              <span className="bg-yellow-600 text-white text-[10px] font-bold px-2 py-1 rounded-full shadow-lg animate-pulse flex items-center gap-1 shadow-yellow-500/50">
+              <span className="bg-pink-600 text-white text-[10px] font-bold px-2 py-1 rounded-full shadow-lg animate-pulse flex items-center gap-1 shadow-pink-500/50">
                 <Clock size={10} /> COMING SOON
               </span>
             )}
@@ -1340,7 +1454,13 @@ const GameCard = ({
 
         <div className="mb-4">
           <div
-            className={`inline-block p-3 rounded-xl bg-gradient-to-br ${game.color} ${game.shadow} shadow-lg transform group-hover:scale-110 transition-transform duration-300`}
+            className={`inline-block p-3 rounded-xl bg-gradient-to-br ${
+              game.maintenance
+                ? "from-slate-700 to-slate-800 shadow-none grayscale opacity-50"
+                : game.color
+            } ${
+              game.shadow
+            } shadow-lg transform group-hover:scale-110 transition-transform duration-300`}
           >
             {game.icon}
           </div>
@@ -1392,8 +1512,16 @@ const GameCard = ({
           </div>
 
           {!isUpcoming && (
-            <div className="flex items-center text-white font-medium text-sm group-hover/btn:translate-x-1 transition-transform">
-              Play <ArrowRight className="w-4 h-4 ml-1" />
+            <div className="flex items-center font-medium text-sm group-hover/btn:translate-x-1 transition-transform">
+              {game.maintenance ? (
+                <span className="text-slate-500 flex items-center gap-1">
+                  <Hammer size={12} /> Offline
+                </span>
+              ) : (
+                <span className="text-white flex items-center">
+                  Play <ArrowRight className="w-4 h-4 ml-1" />
+                </span>
+              )}
             </div>
           )}
         </div>
@@ -1558,6 +1686,7 @@ const GameHub = () => {
         isHot: override.isHot ?? false,
         isFeatured: override.isFeatured || false,
         isUpcoming: override.isUpcoming || false,
+        maintenance: override.maintenance || false,
         popularity: realClicks + manualBoost,
       };
     });
@@ -1723,6 +1852,8 @@ const GameHub = () => {
           <MaintenanceContent />
         ) : (
           <>
+            
+
             {/* NEW RELEASES SLIDER (FEATURED SECTION) */}
             {!isFiltering && (
               <NewReleaseSlider
@@ -1741,8 +1872,14 @@ const GameHub = () => {
                   {historyGames.map((game) => (
                     <div
                       key={game.id}
-                      onClick={() => handleRandomSelect(game)}
-                      className="flex-shrink-0 cursor-pointer group flex items-center gap-3 p-3 rounded-xl bg-slate-900 border border-slate-800 hover:border-indigo-500/50 transition-all pr-6"
+                      onClick={() =>
+                        !game.maintenance && handleRandomSelect(game)
+                      }
+                      className={`flex-shrink-0 group flex items-center gap-3 p-3 rounded-xl bg-slate-900 border border-slate-800 transition-all pr-6 ${
+                        game.maintenance
+                          ? "opacity-50 cursor-not-allowed border-orange-900"
+                          : "hover:border-indigo-500/50 cursor-pointer"
+                      }`}
                     >
                       <div
                         className={`p-2 rounded-lg bg-gradient-to-br ${game.color}`}
@@ -1756,7 +1893,9 @@ const GameHub = () => {
                         <div className="text-white font-bold text-sm truncate max-w-[150px]">
                           {game.title}
                         </div>
-                        <div className="text-slate-500 text-xs">Resume</div>
+                        <div className="text-slate-500 text-xs">
+                          {game.maintenance ? "Maintenance" : "Resume"}
+                        </div>
                       </div>
                     </div>
                   ))}
@@ -1804,7 +1943,8 @@ const GameHub = () => {
                   onClick={() => setIsRandomModalOpen(true)}
                   className="px-6 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-xl text-white font-bold shadow-lg shadow-indigo-500/20 hover:scale-105 transition-transform flex items-center gap-2 whitespace-nowrap"
                 >
-                  <Shuffle size={20} /> <span className="">Pick for me</span>
+                  <Shuffle size={20} />{" "}
+                  <span className="">Pick for me</span>
                 </button>
               </div>
 
@@ -1948,8 +2088,8 @@ const GameHub = () => {
             {!isFiltering && upcomingGames.length > 0 && (
               <section className="mb-16 animate-in slide-in-from-bottom-4 duration-700">
                 <div className="flex items-center gap-2 mb-6">
-                  <div className="p-2 bg-yellow-500/10 rounded-lg border border-yellow-500/20">
-                    <Clock className="w-5 h-5 text-yellow-400" />
+                  <div className="p-2 bg-pink-500/10 rounded-lg border border-pink-500/20">
+                    <Clock className="w-5 h-5 text-pink-400" />
                   </div>
                   <h2 className="text-2xl font-bold text-white tracking-wide">
                     Upcoming Releases
@@ -2003,4 +2143,5 @@ const GameHub = () => {
     </div>
   );
 };
+
 export default GameHub;
