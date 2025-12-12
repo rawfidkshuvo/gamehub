@@ -71,6 +71,7 @@ import {
   Laptop,
   Hourglass,
   Cpu,
+  Cat,
 } from "lucide-react";
 // --- CHARTS ---
 import {
@@ -416,6 +417,23 @@ const INITIAL_GAMES = [
     complexity: "Medium",
     duration: "15-20m",
     link: "#",
+    isNew: true,
+  },
+  {
+    id: 19,
+    title: "Royal Menagerie",
+    description:
+      "The Queen's court is a masquerade of lies. Offer 'gifts' to your rivals—a noble Dog, or perhaps a repulsive Rat? Look them in the eye and deceive your way to safety. In this game of high-stakes bluffing, the first to hoard the animals becomes the Royal Fool.",
+    icon: <Cat className="w-12 h-12 text-white" />,
+    color: "from-purple-600 to-pink-900",
+    shadow: "shadow-purple-500/50",
+    category: "Bluffing",
+    minPlayers: 2,
+    maxPlayers: 7,
+    hasBots: false,
+    complexity: "Low",
+    duration: "15-25m",
+    link: "#", // Update this with your actual route/link
     isNew: true,
   },
 ];
