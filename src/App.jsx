@@ -433,7 +433,7 @@ const INITIAL_GAMES = [
     hasBots: false,
     complexity: "Low",
     duration: "15-25m",
-    link: "#", // Update this with your actual route/link
+    link: "https://rawfidkshuvo.github.io/royal-menagerie-game/",
     isNew: true,
   },
 ];
