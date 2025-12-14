@@ -72,6 +72,7 @@ import {
   Hourglass,
   Cpu,
   Cat,
+  Banana,
 } from "lucide-react";
 // --- CHARTS ---
 import {
@@ -436,6 +437,23 @@ const INITIAL_GAMES = [
     link: "https://rawfidkshuvo.github.io/royal-menagerie-game/",
     isNew: true,
   },
+  {
+    id: 20,
+    title: "Fructose Fury",
+    description:
+      "A tantalizing orchard of risks and rewards awaits. Pluck sweet victories from the deck one by one, but beware the rot of greed. One duplicate fruit is all it takes to turn your harvest into compost. In this cutthroat market, will you feast on your rivals' misfortune, or will your own ambition leave you with nothing but a bitter taste?",
+    icon: <Banana className="w-12 h-12 text-white" />,
+    color: "from-yellow-500 to-orange-600",
+    shadow: "shadow-yellow-500/50",
+    category: "Push-Your-Luck",
+    minPlayers: 2,
+    maxPlayers: 6,
+    hasBots: false,
+    complexity: "Low",
+    duration: "15m",
+    link: "https://rawfidkshuvo.github.io/fructose-fury-game/",
+    isNew: true,
+  },
 ];
 
 // ---------------------------------------------------------------------------
@@ -769,7 +787,10 @@ const AdminModal = ({
                         <th className="pb-3 pl-2">Game</th>
                         <th className="pb-3 text-center">Featured</th>
                         <th className="pb-3 text-center">Visible</th>
-                        <th className="pb-3 text-center text-red-400" title="Maintenance Mode">
+                        <th
+                          className="pb-3 text-center text-red-400"
+                          title="Maintenance Mode"
+                        >
                           <Hammer size={14} className="mx-auto" />
                         </th>
                         <th className="pb-3 text-center">New</th>
@@ -825,8 +846,12 @@ const AdminModal = ({
                             <td className="py-3 text-center">
                               <input
                                 type="checkbox"
-                                checked={localConfig[game.id]?.maintenance ?? false}
-                                onChange={() => handleToggle(game.id, "maintenance")}
+                                checked={
+                                  localConfig[game.id]?.maintenance ?? false
+                                }
+                                onChange={() =>
+                                  handleToggle(game.id, "maintenance")
+                                }
                                 className="w-4 h-4 accent-red-500 cursor-pointer"
                               />
                             </td>
@@ -1870,8 +1895,6 @@ const GameHub = () => {
           <MaintenanceContent />
         ) : (
           <>
-            
-
             {/* NEW RELEASES SLIDER (FEATURED SECTION) */}
             {!isFiltering && (
               <NewReleaseSlider
@@ -1961,8 +1984,7 @@ const GameHub = () => {
                   onClick={() => setIsRandomModalOpen(true)}
                   className="px-6 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-xl text-white font-bold shadow-lg shadow-indigo-500/20 hover:scale-105 transition-transform flex items-center gap-2 whitespace-nowrap"
                 >
-                  <Shuffle size={20} />{" "}
-                  <span className="">Pick for me</span>
+                  <Shuffle size={20} /> <span className="">Pick for me</span>
                 </button>
               </div>
 
