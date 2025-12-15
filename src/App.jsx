@@ -73,6 +73,7 @@ import {
   Cpu,
   Cat,
   Banana,
+  Biohazard,
 } from "lucide-react";
 // --- CHARTS ---
 import {
