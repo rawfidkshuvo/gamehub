@@ -74,6 +74,7 @@ import {
   Cat,
   Banana,
   Biohazard,
+  Skull,
 } from "lucide-react";
 // --- CHARTS ---
 import {
@@ -467,9 +468,26 @@ const INITIAL_GAMES = [
     minPlayers: 3,
     maxPlayers: 7,
     hasBots: false,
-    complexity: "Low",
+    complexity: "Medium",
     duration: "15-20m",
     link: "https://rawfidkshuvo.github.io/angry-virus-game/", // Placeholder link
+    isNew: true,
+  },
+  {
+    id: 22,
+    title: "Last of Us",
+    description:
+      "A strategic shedding game of survival. In a world overrun by odd-numbered Zombies, you must use even-numbered Antidotes to build a cage. Maintain the delicate balance—Zombies and Antidotes can never stand side-by-side. Expand the perimeter or stack your defenses, but if you get trapped, you'll be quarantined. Be the last one standing to survive the round.",
+    icon: <Skull className="w-12 h-12 text-white" />,
+    color: "from-red-700 to-lime-900",
+    shadow: "shadow-red-900/50",
+    category: "Shedding",
+    minPlayers: 2,
+    maxPlayers: 6,
+    hasBots: false,
+    complexity: "Medium",
+    duration: "20m",
+    link: "https://rawfidkshuvo.github.io/last-of-us-game/",
     isNew: true,
   },
 ];
