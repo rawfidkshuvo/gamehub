@@ -454,6 +454,23 @@ const INITIAL_GAMES = [
     link: "https://rawfidkshuvo.github.io/fructose-fury-game/",
     isNew: true,
   },
+  {
+    id: 21,
+    title: "Angry Virus",
+    description:
+      "A contagious game of calculated risks. A deck of numbered viruses threatens your health score. Will you pay a precious vitamin token to pass the infection to your neighbor, or bite the bullet and take the card to save your resources? Collect consecutive viruses to reduce their impact, but beware—running out of vitamins leaves you vulnerable to the highest fevers.",
+    icon: <Biohazard className="w-12 h-12 text-white" />,
+    color: "from-green-600 to-lime-800",
+    shadow: "shadow-lime-500/50",
+    category: "Push-Your-Luck",
+    minPlayers: 3,
+    maxPlayers: 7,
+    hasBots: false,
+    complexity: "Low",
+    duration: "15-20m",
+    link: "https://rawfidkshuvo.github.io/angry-virus-game/", // Placeholder link
+    isNew: true,
+  },
 ];
 
 // ---------------------------------------------------------------------------
