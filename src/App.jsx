@@ -490,6 +490,22 @@ const INITIAL_GAMES = [
     link: "https://rawfidkshuvo.github.io/last-of-us-game/",
     isNew: true,
   },
+  {
+    id: 23,
+    title: "Together",
+    description:
+      "Two minds, one silent purpose. In this cooperative race, you and your partner must synchronize your strategies without a single word about your hands. Trade cards, align your goals, and outpace the opposition to complete 8 distinct patterns. Synergy is your only weapon in this test of non-verbal connection.",
+    icon: <Handshake className="w-12 h-12 text-white" />,
+    color: "from-pink-600 to-yellow-500",
+    shadow: "shadow-pink-500/50",
+    category: "Cooperative",
+    minPlayers: 4,
+    maxPlayers: 6,
+    hasBots: false,
+    complexity: "Medium",
+    duration: "20-40m",
+    link: "https://rawfidkshuvo.github.io/together-game/",
+  },
 ];
 
 // ---------------------------------------------------------------------------
