@@ -98,7 +98,7 @@ const firebaseConfig = {
   projectId: "game-hub-ff8aa",
   storageBucket: "game-hub-ff8aa.firebasestorage.app",
   messagingSenderId: "586559578902",
-  appId: "1:586559578902:web:91da4fa4ace038d16aa637",
+  appId: "1:586559578902:web:91da4fa4ace038d16aa637"
 };
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
@@ -504,7 +504,7 @@ const INITIAL_GAMES = [
     hasBots: false,
     complexity: "Medium",
     duration: "20-40m",
-    link: "https://rawfidkshuvo.github.io/together-game/",
+    link: "/together",
   },
 ];
 
@@ -569,7 +569,7 @@ const AdminModal = ({
           isFeatured: g.isFeatured || false,
           isUpcoming: g.isUpcoming || false,
           maintenance: g.maintenance || false,
-          popularity: g.manualBoost || 0,
+          popularity: g.manualBoost || 0, // UPDATED: Reads from g.manualBoost to persist value
         };
       });
       setLocalConfig(config);
@@ -1284,13 +1284,14 @@ const RandomGameModal = ({ isOpen, onClose, games, onSelect }) => {
 };
 const NewReleaseSlider = ({ games, onGameClick }) => {
   const heroGames = useMemo(() => {
-    // Strategy: Combine NEW, FEATURED, and UPCOMING games
-    const newGames = games.filter((g) => g.isNew && g.visible);
+    // Strategy: Combine FEATURED, NEW, and UPCOMING games
     const featuredGames = games.filter((g) => g.isFeatured && g.visible);
+    const newGames = games.filter((g) => g.isNew && g.visible);
     const upcomingGames = games.filter((g) => g.isUpcoming && g.visible);
 
     // Combine and remove duplicates (using Set of IDs)
-    const combined = [...newGames, ...featuredGames, ...upcomingGames];
+    // Order: Featured first, then New, then Upcoming
+    const combined = [...featuredGames, ...newGames, ...upcomingGames];
     const uniqueGames = Array.from(
       new Map(combined.map((game) => [game.id, game])).values()
     );
@@ -1339,15 +1340,23 @@ const NewReleaseSlider = ({ games, onGameClick }) => {
   // Determine badge text and style
   let badgeText = "Featured";
   let badgeColor = "bg-emerald-500/20 border-emerald-500/30 text-emerald-300";
+
   if (currentGame.isUpcoming) {
     badgeText = "Upcoming Release";
     badgeColor = "bg-pink-500/20 border-pink-500/30 text-pink-300";
   } else if (currentGame.maintenance) {
     badgeText = "Maintenance Break";
     badgeColor = "bg-orange-500/20 border-orange-500/30 text-orange-300";
+  } else if (currentGame.isFeatured) {
+    // UPDATED: Priority moved up. Featured takes precedence over New.
+    badgeText = "Featured";
+    badgeColor = "bg-emerald-500/20 border-emerald-500/30 text-emerald-300";
   } else if (currentGame.isNew) {
     badgeText = "New Release";
     badgeColor = "bg-red-700/20 border-red-500/30 text-red-400";
+  } else if (currentGame.isHot) {
+    badgeText = "Hot";
+    badgeColor = "bg-orange-700/20 border-orange-500/30 text-orange-300";
   }
 
   return (
@@ -1782,6 +1791,7 @@ const GameHub = () => {
         isFeatured: override.isFeatured || false,
         isUpcoming: override.isUpcoming || false,
         maintenance: override.maintenance || false,
+        manualBoost: manualBoost, // UPDATED: Pass manualBoost to game object
         popularity: realClicks + manualBoost,
       };
     });
