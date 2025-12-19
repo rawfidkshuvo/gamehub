@@ -75,6 +75,11 @@ import {
   Banana,
   Biohazard,
   Skull,
+  HeartHandshake,
+  HatGlasses,
+  PawPrint,
+  Dices,
+  Target,
 } from "lucide-react";
 // --- CHARTS ---
 import {
@@ -98,7 +103,7 @@ const firebaseConfig = {
   projectId: "game-hub-ff8aa",
   storageBucket: "game-hub-ff8aa.firebasestorage.app",
   messagingSenderId: "586559578902",
-  appId: "1:586559578902:web:91da4fa4ace038d16aa637"
+  appId: "1:586559578902:web:91da4fa4ace038d16aa637",
 };
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
@@ -114,10 +119,16 @@ const logGameClick = (game) => {
   try {
     const logsRef = collection(db, "game_click_logs");
     const userId = auth.currentUser ? auth.currentUser.uid : "unknown";
+    // Log the primary category (first in array) to keep analytics simple
+    const primaryCategory =
+      game.categories && game.categories.length > 0
+        ? game.categories[0]
+        : "Uncategorized";
+
     addDoc(logsRef, {
       gameId: game.id,
       gameTitle: game.title,
-      category: game.category,
+      category: primaryCategory,
       userId: userId,
       device: navigator.userAgent,
       timestamp: serverTimestamp(),
@@ -138,7 +149,7 @@ const INITIAL_GAMES = [
     icon: <Eye className="w-12 h-12 text-white" />,
     color: "from-purple-600 to-indigo-900",
     shadow: "shadow-purple-500/50",
-    category: "Bluffing",
+    categories: ["Bluffing"],
     minPlayers: 2,
     maxPlayers: 6,
     hasBots: false,
@@ -151,10 +162,10 @@ const INITIAL_GAMES = [
     title: "Investigation",
     description:
       "The rain-slicked streets hide a gruesome secret. A crime has shattered the peace, and the killer walks among you, wearing the mask of an innocent. Sift through a labyrinth of lies and fragmented clues before the trail goes cold—or worse, before the murderer strikes again.",
-    icon: <MagnifyingGlass className="w-12 h-12 text-white" />,
+    icon: <HatGlasses className="w-12 h-12 text-white" />,
     color: "from-green-600 to-cyan-800",
     shadow: "shadow-green-500/50",
-    category: "Party",
+    categories: ["Party"],
     minPlayers: 4,
     maxPlayers: 10,
     hasBots: false,
@@ -170,7 +181,7 @@ const INITIAL_GAMES = [
     icon: <Siren className="w-12 h-12 text-white" />,
     color: "from-red-700 to-blue-900",
     shadow: "shadow-red-500/50",
-    category: "Party",
+    categories: ["Party"],
     minPlayers: 1,
     maxPlayers: 4,
     hasBots: true,
@@ -186,7 +197,7 @@ const INITIAL_GAMES = [
     icon: <Crown className="w-12 h-12 text-white" />,
     color: "from-yellow-500 to-amber-700",
     shadow: "shadow-amber-500/50",
-    category: "Strategy",
+    categories: ["Strategy"],
     minPlayers: 2,
     maxPlayers: 2,
     hasBots: false,
@@ -202,7 +213,7 @@ const INITIAL_GAMES = [
     icon: <Ship className="w-12 h-12 text-white" />,
     color: "from-red-600 to-orange-800",
     shadow: "shadow-orange-500/50",
-    category: "Strategy",
+    categories: ["Strategy"],
     minPlayers: 2,
     maxPlayers: 8,
     hasBots: false,
@@ -218,7 +229,7 @@ const INITIAL_GAMES = [
     icon: <Apple className="w-12 h-12 text-white" />,
     color: "from-orange-500 to-red-600",
     shadow: "shadow-orange-500/50",
-    category: "Party",
+    categories: ["Party"],
     minPlayers: 1,
     maxPlayers: 6,
     hasBots: true,
@@ -231,10 +242,10 @@ const INITIAL_GAMES = [
     title: "Ghost Dice",
     description:
       "Step into a spectral tavern where souls are the currency and the dice are cast by unseen hands. Bid on the unknown, challenge the liars, and keep your wits about you. In this game of chance, fading into the void is a fate worse than debt.",
-    icon: <Ghost className="w-12 h-12 text-white" />,
+    icon: <Dices className="w-12 h-12 text-white" />,
     color: "from-indigo-500 to-zinc-700",
     shadow: "shadow-indigo-500/50",
-    category: "Bluffing",
+    categories: ["Bluffing"],
     minPlayers: 2,
     maxPlayers: 6,
     hasBots: false,
@@ -250,7 +261,7 @@ const INITIAL_GAMES = [
     icon: <Terminal className="w-12 h-12 text-white" />,
     color: "from-cyan-600 to-blue-800",
     shadow: "shadow-cyan-500/50",
-    category: "Social Deduction",
+    categories: ["Social Deduction"],
     minPlayers: 5,
     maxPlayers: 10,
     hasBots: false,
@@ -266,7 +277,7 @@ const INITIAL_GAMES = [
     icon: <Briefcase className="w-12 h-12 text-white" />,
     color: "from-amber-500 to-slate-700",
     shadow: "shadow-amber-500/50",
-    category: "Strategy",
+    categories: ["Strategy"],
     minPlayers: 3,
     maxPlayers: 6,
     hasBots: false,
@@ -282,7 +293,7 @@ const INITIAL_GAMES = [
     icon: <Layers className="w-12 h-12 text-white" />,
     color: "from-cyan-400 to-purple-600",
     shadow: "shadow-cyan-500/50",
-    category: "Strategy",
+    categories: ["Strategy"],
     minPlayers: 2,
     maxPlayers: 6,
     hasBots: false,
@@ -298,7 +309,7 @@ const INITIAL_GAMES = [
     icon: <Anchor className="w-12 h-12 text-white" />,
     color: "from-teal-600 to-slate-800",
     shadow: "shadow-teal-500/50",
-    category: "Push-Your-Luck",
+    categories: ["Push-Your-Luck"],
     minPlayers: 2,
     maxPlayers: 8,
     hasBots: false,
@@ -314,7 +325,7 @@ const INITIAL_GAMES = [
     icon: <Package className="w-12 h-12 text-white" />,
     color: "from-emerald-500 to-green-800",
     shadow: "shadow-emerald-500/50",
-    category: "Bluffing",
+    categories: ["Bluffing"],
     minPlayers: 3,
     maxPlayers: 6,
     hasBots: false,
@@ -327,10 +338,10 @@ const INITIAL_GAMES = [
     title: "Trust",
     description:
       "Two players, one pot of gold, and a test of pure psychology. Will you share the wealth and prosper together, or stab your partner in the back for a larger slice? A minimalist game that reveals the true nature of greed.",
-    icon: <Handshake className="w-12 h-12 text-white" />,
+    icon: <HeartHandshake className="w-12 h-12 text-white" />,
     color: "from-green-500 to-red-600",
     shadow: "shadow-green-500/50",
-    category: "Psychology",
+    categories: ["Psychology"],
     minPlayers: 2,
     maxPlayers: 2,
     hasBots: false,
@@ -346,7 +357,7 @@ const INITIAL_GAMES = [
     icon: <LifeBuoy className="w-12 h-12 text-white" />,
     color: "from-cyan-600 to-blue-900",
     shadow: "shadow-cyan-500/50",
-    category: "Survival",
+    categories: ["Survival"],
     minPlayers: 4,
     maxPlayers: 8,
     hasBots: false,
@@ -362,7 +373,7 @@ const INITIAL_GAMES = [
     icon: <Ghost className="w-12 h-12 text-white" />,
     color: "from-zinc-900 to-purple-900",
     shadow: "shadow-purple-900/50",
-    category: "Strategy",
+    categories: ["Strategy"],
     minPlayers: 2,
     maxPlayers: 6,
     hasBots: false,
@@ -379,7 +390,7 @@ const INITIAL_GAMES = [
     icon: <Hourglass className="w-12 h-12 text-white" />,
     color: "from-cyan-600 to-blue-900",
     shadow: "shadow-cyan-500/50",
-    category: "Strategy",
+    categories: ["Strategy"],
     minPlayers: 2,
     maxPlayers: 2,
     hasBots: false,
@@ -396,7 +407,7 @@ const INITIAL_GAMES = [
     icon: <Cpu className="w-12 h-12 text-white" />,
     color: "from-fuchsia-600 to-cyan-700",
     shadow: "shadow-fuchsia-500/50",
-    category: "Social Deduction",
+    categories: ["Social Deduction"],
     minPlayers: 3,
     maxPlayers: 8,
     hasBots: false,
@@ -413,7 +424,7 @@ const INITIAL_GAMES = [
     icon: <Anchor className="w-12 h-12 text-white" />,
     color: "from-blue-500 to-cyan-400",
     shadow: "shadow-cyan-500/50",
-    category: "Strategy",
+    categories: ["Strategy"],
     minPlayers: 2,
     maxPlayers: 4,
     hasBots: false,
@@ -427,10 +438,10 @@ const INITIAL_GAMES = [
     title: "Royal Menagerie",
     description:
       "The Queen's court is a masquerade of lies. Offer 'gifts' to your rivals—a noble Dog, or perhaps a repulsive Rat? Look them in the eye and deceive your way to safety. In this game of high-stakes bluffing, the first to hoard the animals becomes the Royal Fool.",
-    icon: <Cat className="w-12 h-12 text-white" />,
+    icon: <PawPrint className="w-12 h-12 text-white" />,
     color: "from-purple-600 to-pink-900",
     shadow: "shadow-purple-500/50",
-    category: "Bluffing",
+    categories: ["Bluffing"],
     minPlayers: 2,
     maxPlayers: 7,
     hasBots: false,
@@ -447,7 +458,7 @@ const INITIAL_GAMES = [
     icon: <Banana className="w-12 h-12 text-white" />,
     color: "from-yellow-500 to-orange-600",
     shadow: "shadow-yellow-500/50",
-    category: "Push-Your-Luck",
+    categories: ["Push-Your-Luck"],
     minPlayers: 2,
     maxPlayers: 6,
     hasBots: false,
@@ -464,7 +475,7 @@ const INITIAL_GAMES = [
     icon: <Biohazard className="w-12 h-12 text-white" />,
     color: "from-green-600 to-lime-800",
     shadow: "shadow-lime-500/50",
-    category: "Push-Your-Luck",
+    categories: ["Push-Your-Luck"],
     minPlayers: 3,
     maxPlayers: 7,
     hasBots: false,
@@ -481,7 +492,7 @@ const INITIAL_GAMES = [
     icon: <Skull className="w-12 h-12 text-white" />,
     color: "from-red-700 to-lime-900",
     shadow: "shadow-red-900/50",
-    category: "Shedding",
+    categories: ["Shedding"],
     minPlayers: 2,
     maxPlayers: 6,
     hasBots: false,
@@ -498,13 +509,29 @@ const INITIAL_GAMES = [
     icon: <Handshake className="w-12 h-12 text-white" />,
     color: "from-pink-600 to-yellow-500",
     shadow: "shadow-pink-500/50",
-    category: "Cooperative",
+    categories: ["Melding", "Set Collection"],
     minPlayers: 4,
     maxPlayers: 6,
     hasBots: false,
     complexity: "Medium",
     duration: "20-40m",
     link: "/together",
+  },
+  {
+    id: 24,
+    title: "Spectrum",
+    description:
+      "A tactical duel of numerical frequencies where balance is everything. Navigate the shifting colors of the spectrum to win tricks and calibrate your score to the perfect equilibrium of 25. Use the deceptive Magenta 5 to mask your true energy, but be careful—one step over the limit will overload your system and cost you the round.",
+    icon: <Target className="w-12 h-12 text-white" />,
+    color: "from-fuchsia-600 to-indigo-950",
+    shadow: "shadow-fuchsia-500/50",
+    categories: ["Strategy"],
+    minPlayers: 3,
+    maxPlayers: 4,
+    hasBots: false,
+    complexity: "Medium",
+    duration: "20-30m",
+    link: "https://rawfidkshuvo.github.io/spectrum-game/",
   },
 ];
 
@@ -1579,9 +1606,16 @@ const GameCard = ({
           </p>
 
           <div className="flex flex-wrap gap-2 mb-4">
-            <span className="px-2 py-1 bg-slate-800 text-slate-300 text-[10px] uppercase font-bold rounded flex items-center gap-1">
-              {game.category}
-            </span>
+            {/* Renders multiple categories if present */}
+            {game.categories &&
+              game.categories.map((cat, i) => (
+                <span
+                  key={i}
+                  className="px-2 py-1 bg-slate-800 text-slate-300 text-[10px] uppercase font-bold rounded flex items-center gap-1"
+                >
+                  {cat}
+                </span>
+              ))}
             <span className="px-2 py-1 bg-slate-800 text-indigo-300 text-[10px] uppercase font-bold rounded flex items-center gap-1">
               <Clock size={10} /> {game.duration}
             </span>
@@ -1801,7 +1835,7 @@ const GameHub = () => {
     ...new Set(
       processedGames
         .filter((g) => g.visible && !g.isUpcoming)
-        .map((g) => g.category)
+        .flatMap((g) => g.categories) // UPDATED: Use flatMap to handle arrays
     ),
   ];
   const isFiltering =
@@ -1814,11 +1848,18 @@ const GameHub = () => {
   const filteredGames = useMemo(() => {
     return processedGames
       .filter((game) => {
+        // UPDATED: Search checks if ANY category matches
         const matchesSearch =
           game.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          game.category.toLowerCase().includes(searchTerm.toLowerCase());
+          game.categories.some((c) =>
+            c.toLowerCase().includes(searchTerm.toLowerCase())
+          );
+
+        // UPDATED: Category check looks for inclusion in array
         const matchesCategory =
-          selectedCategory === "All" || game.category === selectedCategory;
+          selectedCategory === "All" ||
+          game.categories.includes(selectedCategory);
+
         const matchesPlayers =
           playerCount === 0 ||
           (playerCount >= game.minPlayers && playerCount <= game.maxPlayers);
@@ -2245,5 +2286,4 @@ const GameHub = () => {
     </div>
   );
 };
-
 export default GameHub;
