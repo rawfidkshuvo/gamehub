@@ -252,7 +252,7 @@ const INITIAL_GAMES = [
     hasBots: false,
     complexity: "Medium",
     duration: "15m",
-    link: "#",
+    link: "https://rawfidkshuvo.github.io/ghost-dice-game/",
   },
   {
     id: 8,
