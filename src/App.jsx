@@ -61,6 +61,7 @@ import {
   Heart,
   Shuffle,
   Zap,
+  Server,
   History,
   BarChart3,
   AlertTriangle,
@@ -258,7 +259,7 @@ const INITIAL_GAMES = [
     title: "Protocol: Sabotage",
     description:
       "In a futuristic world of corporate espionage, trust is a liability. The system is compromised, and the moles are digging in. Identify the saboteurs before the network collapses, or watch your team's hard work dissolve into digital dust.",
-    icon: <Terminal className="w-12 h-12 text-white" />,
+    icon: <Server className="w-12 h-12 text-white" />,
     color: "from-cyan-600 to-blue-800",
     shadow: "shadow-cyan-500/50",
     categories: ["Social Deduction"],
@@ -267,7 +268,7 @@ const INITIAL_GAMES = [
     hasBots: false,
     complexity: "High",
     duration: "30-60m",
-    link: "#",
+    link: "https://rawfidkshuvo.github.io/protocol-game/",
   },
   {
     id: 9,
@@ -515,7 +516,7 @@ const INITIAL_GAMES = [
     hasBots: false,
     complexity: "Medium",
     duration: "20-40m",
-    link: "/together",
+    link: "https://rawfidkshuvo.github.io/together-game/",
   },
   {
     id: 24,
