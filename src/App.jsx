@@ -431,7 +431,7 @@ const INITIAL_GAMES = [
     hasBots: false,
     complexity: "Medium",
     duration: "15-20m",
-    link: "#",
+    link: "https://rawfidkshuvo.github.io/paper-ocean-game/",
     isNew: true,
   },
   {
