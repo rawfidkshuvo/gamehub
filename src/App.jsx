@@ -332,7 +332,7 @@ const INITIAL_GAMES = [
     hasBots: false,
     complexity: "Medium",
     duration: "25m",
-    link: "#",
+    link: "https://rawfidkshuvo.github.io/contraband-game/",
   },
   {
     id: 13,
