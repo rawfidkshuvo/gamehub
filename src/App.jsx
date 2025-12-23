@@ -414,7 +414,7 @@ const INITIAL_GAMES = [
     hasBots: false,
     complexity: "Medium",
     duration: "20m",
-    link: "#",
+    link: "https://rawfidkshuvo.github.io/masquerade-protocol-game/",
     isNew: true,
   },
   {
