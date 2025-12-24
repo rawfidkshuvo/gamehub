@@ -380,7 +380,7 @@ const INITIAL_GAMES = [
     hasBots: false,
     complexity: "Medium",
     duration: "20-30m",
-    link: "#",
+    link: "https://rawfidkshuvo.github.io/guild-of-shadows-game/",
     isNew: true,
   },
   {
