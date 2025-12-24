@@ -32,6 +32,7 @@ import {
   Search as MagnifyingGlass,
   Siren,
   Apple,
+  Citrus,
   Eye,
   ArrowRight,
   Gamepad2,
@@ -227,7 +228,7 @@ const INITIAL_GAMES = [
     title: "Fruit Seller",
     description:
       "The bazaar is alive with the chaotic symphony of commerce. In this high-speed trade-off, only the sharpest minds will prosper. Use cunning psychology to outwit your rivals, corner the market on exotic wares, and walk away with the heaviest purse.",
-    icon: <Apple className="w-12 h-12 text-white" />,
+    icon: <Citrus className="w-12 h-12 text-white" />,
     color: "from-orange-500 to-red-600",
     shadow: "shadow-orange-500/50",
     categories: ["Party"],
