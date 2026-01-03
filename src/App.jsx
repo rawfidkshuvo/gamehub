@@ -83,6 +83,7 @@ import {
   PawPrint,
   Dices,
   Target,
+  QrCode,
 } from "lucide-react";
 // --- CHARTS ---
 import {
@@ -152,7 +153,7 @@ const INITIAL_GAMES = [
     icon: <Eye className="w-12 h-12 text-white" />,
     color: "from-purple-600 to-indigo-900",
     shadow: "shadow-purple-500/50",
-    categories: ["Bluffing","Social Deduction"],
+    categories: ["Bluffing", "Social Deduction"],
     minPlayers: 2,
     maxPlayers: 6,
     hasBots: false,
@@ -200,7 +201,7 @@ const INITIAL_GAMES = [
     icon: <Crown className="w-12 h-12 text-white" />,
     color: "from-yellow-500 to-amber-700",
     shadow: "shadow-amber-500/50",
-    categories: ["Strategy","Drafting"],
+    categories: ["Strategy", "Drafting"],
     minPlayers: 2,
     maxPlayers: 2,
     hasBots: false,
@@ -296,7 +297,7 @@ const INITIAL_GAMES = [
     icon: <Layers className="w-12 h-12 text-white" />,
     color: "from-cyan-400 to-purple-600",
     shadow: "shadow-cyan-500/50",
-    categories: ["Strategy","Drafting"],
+    categories: ["Strategy", "Drafting"],
     minPlayers: 2,
     maxPlayers: 6,
     hasBots: false,
@@ -328,7 +329,7 @@ const INITIAL_GAMES = [
     icon: <Package className="w-12 h-12 text-white" />,
     color: "from-emerald-500 to-green-800",
     shadow: "shadow-emerald-500/50",
-    categories: ["Bluffing","Set Collection"],
+    categories: ["Bluffing", "Set Collection"],
     minPlayers: 3,
     maxPlayers: 6,
     hasBots: false,
@@ -410,7 +411,7 @@ const INITIAL_GAMES = [
     icon: <Cpu className="w-12 h-12 text-white" />,
     color: "from-fuchsia-600 to-cyan-700",
     shadow: "shadow-fuchsia-500/50",
-    categories: ["Social Deduction","Set Collection"],
+    categories: ["Social Deduction", "Set Collection"],
     minPlayers: 3,
     maxPlayers: 6,
     hasBots: false,
@@ -427,7 +428,7 @@ const INITIAL_GAMES = [
     icon: <Origami className="w-12 h-12 text-white" />,
     color: "from-blue-500 to-cyan-400",
     shadow: "shadow-cyan-500/50",
-    categories: ["Strategy","Set Collection","Push-Your-Luck"],
+    categories: ["Strategy", "Set Collection", "Push-Your-Luck"],
     minPlayers: 2,
     maxPlayers: 4,
     hasBots: false,
@@ -478,7 +479,7 @@ const INITIAL_GAMES = [
     icon: <Biohazard className="w-12 h-12 text-white" />,
     color: "from-green-600 to-lime-800",
     shadow: "shadow-lime-500/50",
-    categories: ["Push-Your-Luck","Drafting"],
+    categories: ["Push-Your-Luck", "Drafting"],
     minPlayers: 3,
     maxPlayers: 7,
     hasBots: false,
@@ -512,7 +513,7 @@ const INITIAL_GAMES = [
     icon: <Handshake className="w-12 h-12 text-white" />,
     color: "from-pink-600 to-yellow-500",
     shadow: "shadow-pink-500/50",
-    categories: ["Party","Set Collection"],
+    categories: ["Party", "Set Collection"],
     minPlayers: 4,
     maxPlayers: 6,
     hasBots: false,
@@ -528,7 +529,7 @@ const INITIAL_GAMES = [
     icon: <Target className="w-12 h-12 text-white" />,
     color: "from-fuchsia-600 to-indigo-950",
     shadow: "shadow-fuchsia-500/50",
-    categories: ["Strategy","Trick-Taking"],
+    categories: ["Strategy", "Trick-Taking"],
     minPlayers: 3,
     maxPlayers: 4,
     hasBots: false,
@@ -1727,6 +1728,51 @@ animation-timing-function: ease-in-out; animation-iteration-count: infinite; }`}
     </div>
   );
 };
+
+const WebsiteQrModal = ({ isOpen, onClose }) => {
+  if (!isOpen) return null;
+
+  // Get current URL to generate QR code for
+  const currentUrl = window.location.href;
+  const qrImage = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(
+    currentUrl
+  )}&bgcolor=ffffff`;
+
+  return (
+    <div className="fixed inset-0 z-[120] bg-black/80 flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in">
+      <div className="bg-slate-900 border border-slate-700 rounded-2xl max-w-sm w-full p-8 text-center shadow-2xl relative">
+        <button
+          onClick={onClose}
+          className="absolute top-4 right-4 text-slate-400 hover:text-white transition-colors"
+        >
+          <X size={24} />
+        </button>
+
+        <h2 className="text-2xl font-bold text-white mb-2 flex justify-center items-center gap-2">
+          <Smartphone className="text-indigo-500" /> Mobile Access
+        </h2>
+        <p className="text-slate-400 mb-6 text-sm">
+          Scan to play on your mobile device
+        </p>
+
+        <div className="bg-white p-4 rounded-xl inline-block shadow-lg shadow-indigo-500/10 mb-6">
+          <img
+            src={qrImage}
+            alt="Website QR Code"
+            className="w-48 h-48 md:w-56 md:h-56 mix-blend-multiply"
+          />
+        </div>
+
+        <button
+          onClick={onClose}
+          className="w-full py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl transition-colors"
+        >
+          Close
+        </button>
+      </div>
+    </div>
+  );
+};
 // --- MAIN COMPONENT ---
 const GameHub = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -1740,6 +1786,7 @@ const GameHub = () => {
   const [gameOverrides, setGameOverrides] = useState({});
   const [clickStats, setClickStats] = useState({});
   const [isAdminOpen, setIsAdminOpen] = useState(false);
+  const [isQrOpen, setIsQrOpen] = useState(false);
   const [user, setUser] = useState(null);
   const [maintenanceMode, setMaintenanceMode] = useState(false);
 
@@ -1982,6 +2029,9 @@ const GameHub = () => {
         games={filteredGames}
         onSelect={handleRandomSelect}
       />
+
+      {/* ADD THIS MODAL HERE */}
+      <WebsiteQrModal isOpen={isQrOpen} onClose={() => setIsQrOpen(false)} />
 
       <div className="relative z-10 container mx-auto px-4 py-12 max-w-7xl flex-grow flex flex-col">
         <header className="text-center mb-12 space-y-6">
@@ -2258,17 +2308,22 @@ const GameHub = () => {
           </>
         )}
 
+        {/* UPDATED FOOTER SECTION */}
         <footer className="border-t border-slate-800/50 pt-8 mt-auto text-center text-slate-500 text-sm">
           <div className="flex flex-col md:flex-row justify-center items-center gap-4 md:gap-8 mb-4">
-            <a
-              href="#"
+            {/* UPDATED BUTTON */}
+            <button
+              onClick={() => setIsQrOpen(true)}
               className="hover:text-white transition-colors flex items-center gap-2 group"
             >
               <div className="p-2 bg-slate-800 rounded-full group-hover:bg-indigo-600 transition-colors">
-                <Github className="w-4 h-4" />
+                {/* You can keep Github icon, or import QrCode from lucide-react */}
+                <QrCode className="w-4 h-4" />
               </div>{" "}
-              GitHub Repository
-            </a>
+              Share / Mobile QR
+            </button>
+            {/* END UPDATED BUTTON */}
+
             <span className="hidden md:inline w-1 h-1 rounded-full bg-slate-700"></span>
             <p className="flex items-center gap-2">
               Developed by{" "}
