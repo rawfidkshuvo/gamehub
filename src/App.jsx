@@ -1,12 +1,6 @@
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import { initializeApp } from "firebase/app";
-import {
-  getAuth,
-  signInAnonymously,
-  signInWithEmailAndPassword,
-  signOut,
-  onAuthStateChanged,
-} from "firebase/auth";
+import { getAuth, signInAnonymously, onAuthStateChanged } from "firebase/auth";
 import {
   getFirestore,
   doc,
@@ -17,87 +11,54 @@ import {
   collection,
   addDoc,
   serverTimestamp,
-  query,
-  orderBy,
-  limit,
 } from "firebase/firestore";
 // --- ICONS ---
-// Note: PieChart is aliased to PieIcon to avoid conflict with Recharts
 import {
   Users,
   Bot,
-  Search,
   Crown,
   Ship,
   Origami,
-  Search as MagnifyingGlass,
   Siren,
-  Apple,
   Citrus,
   Eye,
   ArrowRight,
   Gamepad2,
   Dice5,
-  Github,
   Ghost,
-  Terminal,
-  Briefcase,
   Layers,
-  Anchor,
   Package,
   Handshake,
   Sparkles,
   Flame,
-  TrendingUp,
-  Settings,
-  Save,
-  X,
-  Lock,
   Clock,
   Trash2,
-  List,
-  LayoutGrid,
   Smartphone,
-  Monitor,
-  LifeBuoy,
   Heart,
   Shuffle,
   Zap,
   Server,
   History,
-  BarChart3,
-  AlertTriangle,
   Hammer,
   ChevronLeft,
   ChevronRight,
   PieChart as PieIcon,
   Laptop,
-  Hourglass,
   Cpu,
-  Cat,
   Banana,
   Biohazard,
   Skull,
-  HeartHandshake,
   HatGlasses,
   PawPrint,
   Dices,
   Target,
   QrCode,
+  Megaphone, // Added for announcement
+  Search,
+  TrendingUp,
+  X,
 } from "lucide-react";
-// --- CHARTS ---
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  Tooltip,
-  ResponsiveContainer,
-  PieChart,
-  Pie,
-  Cell,
-  Legend,
-} from "recharts";
+
 // ---------------------------------------------------------------------------
 // FIREBASE CONFIGURATION
 // ---------------------------------------------------------------------------
@@ -109,9 +70,11 @@ const firebaseConfig = {
   messagingSenderId: "586559578902",
   appId: "1:586559578902:web:91da4fa4ace038d16aa637",
 };
+
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
+
 // ---------------------------------------------------------------------------
 // HELPER: Robust Logging for Mobile
 // ---------------------------------------------------------------------------
@@ -123,7 +86,6 @@ const logGameClick = (game) => {
   try {
     const logsRef = collection(db, "game_click_logs");
     const userId = auth.currentUser ? auth.currentUser.uid : "unknown";
-    // Log the primary category (first in array) to keep analytics simple
     const primaryCategory =
       game.categories && game.categories.length > 0
         ? game.categories[0]
@@ -141,6 +103,7 @@ const logGameClick = (game) => {
     console.error("Log failed", err);
   }
 };
+
 // ---------------------------------------------------------------------------
 // GAME DATA
 // ---------------------------------------------------------------------------
@@ -149,7 +112,7 @@ const INITIAL_GAMES = [
     id: 1,
     title: "Conspiracy",
     description:
-      "In the gilded halls of power, whispers are deadlier than daggers. A secret cabal moves in the shadows, their identities veiled in deceit. Will you expose the puppeteers pulling the strings of the kingdom, or are you merely another pawn in their silent, treacherous game of domination?",
+      "In the gilded halls of power, whispers are deadlier than daggers. A secret cabal moves in the shadows. Will you expose the puppeteers or become one?",
     icon: <Eye className="w-12 h-12 text-white" />,
     color: "from-purple-600 to-indigo-900",
     shadow: "shadow-purple-500/50",
@@ -165,7 +128,7 @@ const INITIAL_GAMES = [
     id: 2,
     title: "Investigation",
     description:
-      "The rain-slicked streets hide a gruesome secret. A crime has shattered the peace, and the killer walks among you, wearing the mask of an innocent. Sift through a labyrinth of lies and fragmented clues before the trail goes cold—or worse, before the murderer strikes again.",
+      "A crime has shattered the peace, and the killer walks among you. Sift through a labyrinth of lies and fragmented clues before the trail goes cold.",
     icon: <HatGlasses className="w-12 h-12 text-white" />,
     color: "from-green-600 to-cyan-800",
     shadow: "shadow-green-500/50",
@@ -181,7 +144,7 @@ const INITIAL_GAMES = [
     id: 3,
     title: "Police Hunt",
     description:
-      "Sirens wail in the distance as the city goes into lockdown. A fugitive is on the run, weaving through the urban sprawl. Coordinate the dragnet to trap the target, or embrace the adrenaline of the chase and slip through the cracks of justice.",
+      "Sirens wail as the city goes into lockdown. A fugitive is on the run. Coordinate the dragnet to trap the target, or embrace the adrenaline of the chase.",
     icon: <Siren className="w-12 h-12 text-white" />,
     color: "from-red-700 to-blue-900",
     shadow: "shadow-red-500/50",
@@ -197,7 +160,7 @@ const INITIAL_GAMES = [
     id: 4,
     title: "Emperor",
     description:
-      "The throne sits empty, and the drums of war beat a rhythmic thunder. Navigate the cutthroat politics of the court and command armies to seize the seven kingdoms. In this high-stakes duel for supremacy, there is no second place—only the crown or the grave.",
+      "Navigate the cutthroat politics of the court and command armies to seize the seven kingdoms. There is no second place—only the crown or the grave.",
     icon: <Crown className="w-12 h-12 text-white" />,
     color: "from-yellow-500 to-amber-700",
     shadow: "shadow-amber-500/50",
@@ -213,7 +176,7 @@ const INITIAL_GAMES = [
     id: 5,
     title: "Pirates",
     description:
-      "The seas are treacherous and filled with scoundrels. Hoist the black flag and carve your legend upon the waves. Bluff your way out of a tight spot, fight for every doubloon, and plunder your rivals, but remember: dead men tell no tales.",
+      "Hoist the black flag. Bluff your way out of a tight spot, fight for every doubloon, and plunder your rivals. Remember: dead men tell no tales.",
     icon: <Ship className="w-12 h-12 text-white" />,
     color: "from-red-600 to-orange-800",
     shadow: "shadow-orange-500/50",
@@ -229,7 +192,7 @@ const INITIAL_GAMES = [
     id: 6,
     title: "Fruit Seller",
     description:
-      "The bazaar is alive with the chaotic symphony of commerce. In this high-speed trade-off, only the sharpest minds will prosper. Use cunning psychology to outwit your rivals, corner the market on exotic wares, and walk away with the heaviest purse.",
+      "The bazaar is alive with commerce. Use cunning psychology to outwit your rivals, corner the market on exotic wares, and walk away with the heaviest purse.",
     icon: <Citrus className="w-12 h-12 text-white" />,
     color: "from-orange-500 to-red-600",
     shadow: "shadow-orange-500/50",
@@ -245,7 +208,7 @@ const INITIAL_GAMES = [
     id: 7,
     title: "Ghost Dice",
     description:
-      "Step into a spectral tavern where souls are the currency and the dice are cast by unseen hands. Bid on the unknown, challenge the liars, and keep your wits about you. In this game of chance, fading into the void is a fate worse than debt.",
+      "Step into a spectral tavern where souls are currency. Bid on the unknown, challenge the liars, and keep your wits about you in this game of chance.",
     icon: <Dices className="w-12 h-12 text-white" />,
     color: "from-indigo-500 to-zinc-700",
     shadow: "shadow-indigo-500/50",
@@ -261,7 +224,7 @@ const INITIAL_GAMES = [
     id: 8,
     title: "Protocol: Sabotage",
     description:
-      "In a futuristic world of corporate espionage, trust is a liability. The system is compromised, and the moles are digging in. Identify the saboteurs before the network collapses, or watch your team's hard work dissolve into digital dust.",
+      "The system is compromised, and moles are digging in. Identify the saboteurs before the network collapses, or watch your team's hard work dissolve.",
     icon: <Server className="w-12 h-12 text-white" />,
     color: "from-cyan-600 to-blue-800",
     shadow: "shadow-cyan-500/50",
@@ -273,27 +236,11 @@ const INITIAL_GAMES = [
     duration: "30-60m",
     link: "https://rawfidkshuvo.github.io/protocol-game/",
   },
-  // {
-  //   id: 9,
-  //   title: "Tycoon",
-  //   description:
-  //     "The market is volatile, and disaster looms on the horizon. Amass your industrial empire and bid wisely on assets, but beware the crash. In this ruthless economic simulation, poverty is a death sentence and only the wealthiest survive.",
-  //   icon: <Briefcase className="w-12 h-12 text-white" />,
-  //   color: "from-amber-500 to-slate-700",
-  //   shadow: "shadow-amber-500/50",
-  //   categories: ["Strategy"],
-  //   minPlayers: 3,
-  //   maxPlayers: 6,
-  //   hasBots: false,
-  //   complexity: "High",
-  //   duration: "45m+",
-  //   link: "#",
-  // },
   {
     id: 10,
     title: "Neon Draft",
     description:
-      "The grid is live and the data stream is flowing. Siphon the best code fragments to build the ultimate cyber-rig. Connect the nodes and optimize your throughput before the connection is severed in this vibrant, cyberpunk drafting game.",
+      "Siphon the best code fragments to build the ultimate cyber-rig. Connect the nodes and optimize your throughput before the connection is severed.",
     icon: <Layers className="w-12 h-12 text-white" />,
     color: "from-cyan-400 to-purple-600",
     shadow: "shadow-cyan-500/50",
@@ -305,27 +252,11 @@ const INITIAL_GAMES = [
     duration: "20m",
     link: "https://rawfidkshuvo.github.io/neon-draft-game/",
   },
-  // {
-  //   id: 11,
-  //   title: "Deep Dive",
-  //   description:
-  //     "The abyss holds ancient fortunes, but oxygen is a precious luxury. Descend into the crushing dark to recover lost treasures. Push your luck too far, and you may find yourself becoming another permanent resident of the deep.",
-  //   icon: <Anchor className="w-12 h-12 text-white" />,
-  //   color: "from-teal-600 to-slate-800",
-  //   shadow: "shadow-teal-500/50",
-  //   categories: ["Push-Your-Luck"],
-  //   minPlayers: 2,
-  //   maxPlayers: 8,
-  //   hasBots: false,
-  //   complexity: "Low",
-  //   duration: "15m",
-  //   link: "#",
-  // },
   {
     id: 12,
     title: "Contraband",
     description:
-      "The border is watching, and the Inspector has eyes like a hawk. Lie to their face and smuggle your illicit goods, or pay the heavy price for your deceit. It's a high-stakes game of bluffing where a poker face is your most valuable asset.",
+      "The Inspector has eyes like a hawk. Lie to their face and smuggle your illicit goods, or pay the heavy price for your deceit.",
     icon: <Package className="w-12 h-12 text-white" />,
     color: "from-emerald-500 to-green-800",
     shadow: "shadow-emerald-500/50",
@@ -337,43 +268,11 @@ const INITIAL_GAMES = [
     duration: "25m",
     link: "https://rawfidkshuvo.github.io/contraband-game/",
   },
-  // {
-  //   id: 13,
-  //   title: "Trust",
-  //   description:
-  //     "Two players, one pot of gold, and a test of pure psychology. Will you share the wealth and prosper together, or stab your partner in the back for a larger slice? A minimalist game that reveals the true nature of greed.",
-  //   icon: <HeartHandshake className="w-12 h-12 text-white" />,
-  //   color: "from-green-500 to-red-600",
-  //   shadow: "shadow-green-500/50",
-  //   categories: ["Psychology"],
-  //   minPlayers: 2,
-  //   maxPlayers: 2,
-  //   hasBots: false,
-  //   complexity: "Low",
-  //   duration: "5m",
-  //   link: "#",
-  // },
-  // {
-  //   id: 14,
-  //   title: "Adrift",
-  //   description:
-  //     "Stranded on a life raft with dwindling supplies and rising panic. Vote on who eats, who starves, and who feeds the sharks. Survive 5 harrowing days at sea... or join the ghosts below in this intense social survival experience.",
-  //   icon: <LifeBuoy className="w-12 h-12 text-white" />,
-  //   color: "from-cyan-600 to-blue-900",
-  //   shadow: "shadow-cyan-500/50",
-  //   categories: ["Survival"],
-  //   minPlayers: 4,
-  //   maxPlayers: 8,
-  //   hasBots: false,
-  //   complexity: "Medium",
-  //   duration: "20m",
-  //   link: "#",
-  // },
   {
     id: 15,
     title: "Guild of Shadows",
     description:
-      "Assemble a team of thieves, assassins, and merchants to build the most powerful guild. Steal gold from rivals, protect your assets, and race to 15 gold in this strategic engine-building game.",
+      "Assemble a team of thieves, assassins, and merchants. Steal gold, protect your assets, and race to 15 gold in this strategic engine-building game.",
     icon: <Ghost className="w-12 h-12 text-white" />,
     color: "from-zinc-900 to-purple-900",
     shadow: "shadow-purple-900/50",
@@ -386,28 +285,11 @@ const INITIAL_GAMES = [
     link: "https://rawfidkshuvo.github.io/guild-of-shadows-game/",
     isNew: true,
   },
-  // {
-  //   id: 16,
-  //   title: "Chrono Tactics",
-  //   description:
-  //     "A duel across three timelines: Past, Present, and Future. Deploy units to influence the flow of time. A victory in the past ripples forward to buff your future army. Defeat the enemy commander to secure the timeline.",
-  //   icon: <Hourglass className="w-12 h-12 text-white" />,
-  //   color: "from-cyan-600 to-blue-900",
-  //   shadow: "shadow-cyan-500/50",
-  //   categories: ["Strategy"],
-  //   minPlayers: 2,
-  //   maxPlayers: 2,
-  //   hasBots: false,
-  //   complexity: "High",
-  //   duration: "15m",
-  //   link: "#",
-  //   isNew: true,
-  // },
   {
     id: 17,
     title: "Masquerade Protocol",
     description:
-      "You are a rogue AI attending a digital gala. Every player has a public Avatar and a hidden Directive (win condition). Trade data packets, hack your rivals, and activate your Glitch ability to seize control... but be warned, glitching reveals your true nature.",
+      "You are a rogue AI attending a digital gala. Trade data packets, hack your rivals, and activate your Glitch ability to seize control.",
     icon: <Cpu className="w-12 h-12 text-white" />,
     color: "from-fuchsia-600 to-cyan-700",
     shadow: "shadow-fuchsia-500/50",
@@ -424,7 +306,7 @@ const INITIAL_GAMES = [
     id: 18,
     title: "Paper Oceans",
     description:
-      "Craft your hand in this colorful set-collection game. Draft cards, play duo effects, and push your luck to end the round. Will you stop safely or bet it all on a Last Chance?",
+      "Craft your hand in this colorful set-collection game. Draft cards, play duo effects, and push your luck. Will you stop safely or bet it all?",
     icon: <Origami className="w-12 h-12 text-white" />,
     color: "from-blue-500 to-cyan-400",
     shadow: "shadow-cyan-500/50",
@@ -441,7 +323,7 @@ const INITIAL_GAMES = [
     id: 19,
     title: "Royal Menagerie",
     description:
-      "The Queen's court is a masquerade of lies. Offer 'gifts' to your rivals—a noble Dog, or perhaps a repulsive Rat? Look them in the eye and deceive your way to safety. In this game of high-stakes bluffing, the first to hoard the animals becomes the Royal Fool.",
+      "The Queen's court is a masquerade of lies. Offer 'gifts' to your rivals—a noble Dog, or a repulsive Rat? Deceive your way to safety.",
     icon: <PawPrint className="w-12 h-12 text-white" />,
     color: "from-purple-600 to-pink-900",
     shadow: "shadow-purple-500/50",
@@ -458,7 +340,7 @@ const INITIAL_GAMES = [
     id: 20,
     title: "Fructose Fury",
     description:
-      "A tantalizing orchard of risks and rewards awaits. Pluck sweet victories from the deck one by one, but beware the rot of greed. One duplicate fruit is all it takes to turn your harvest into compost. In this cutthroat market, will you feast on your rivals' misfortune, or will your own ambition leave you with nothing but a bitter taste?",
+      "Pluck sweet victories from the deck, but beware the rot of greed. One duplicate fruit is all it takes to turn your harvest into compost.",
     icon: <Banana className="w-12 h-12 text-white" />,
     color: "from-yellow-500 to-orange-600",
     shadow: "shadow-yellow-500/50",
@@ -475,24 +357,24 @@ const INITIAL_GAMES = [
     id: 21,
     title: "Angry Virus",
     description:
-      "A contagious game of calculated risks. A deck of numbered viruses threatens your health score. Will you pay a precious vitamin token to pass the infection to your neighbor, or bite the bullet and take the card to save your resources? Collect consecutive viruses to reduce their impact, but beware—running out of vitamins leaves you vulnerable to the highest fevers.",
+      "A contagious game of calculated risks. Pass the infection or bite the bullet? Collect consecutive viruses to reduce their impact.",
     icon: <Biohazard className="w-12 h-12 text-white" />,
     color: "from-green-600 to-lime-800",
     shadow: "shadow-lime-500/50",
     categories: ["Push-Your-Luck", "Drafting"],
-    minPlayers: 3,
+    minPlayers: 2,
     maxPlayers: 7,
     hasBots: false,
     complexity: "Medium",
     duration: "15-20m",
-    link: "https://rawfidkshuvo.github.io/angry-virus-game/", // Placeholder link
+    link: "https://rawfidkshuvo.github.io/angry-virus-game/",
     isNew: true,
   },
   {
     id: 22,
     title: "Last of Us",
     description:
-      "A strategic shedding game of survival. In a world overrun by odd-numbered Zombies, you must use even-numbered Antidotes to build a cage. Maintain the delicate balance—Zombies and Antidotes can never stand side-by-side. Expand the perimeter or stack your defenses, but if you get trapped, you'll be quarantined. Be the last one standing to survive the round.",
+      "A strategic shedding game. Use even-numbered Antidotes to cage the odd-numbered Zombies. Maintain the balance or be quarantined.",
     icon: <Skull className="w-12 h-12 text-white" />,
     color: "from-red-700 to-lime-900",
     shadow: "shadow-red-900/50",
@@ -509,7 +391,7 @@ const INITIAL_GAMES = [
     id: 23,
     title: "Together",
     description:
-      "Two minds, one silent purpose. In this cooperative race, you and your partner must synchronize your strategies without a single word about your hands. Trade cards, align your goals, and outpace the opposition to complete 8 distinct patterns. Synergy is your only weapon in this test of non-verbal connection.",
+      "Two minds, one silent purpose. Synchronize your strategies without a single word to complete 8 distinct patterns. Synergy is your only weapon.",
     icon: <Handshake className="w-12 h-12 text-white" />,
     color: "from-pink-600 to-yellow-500",
     shadow: "shadow-pink-500/50",
@@ -525,7 +407,7 @@ const INITIAL_GAMES = [
     id: 24,
     title: "Spectrum",
     description:
-      "A tactical duel of numerical frequencies where balance is everything. Navigate the shifting colors of the spectrum to win tricks and calibrate your score to the perfect equilibrium of 25. Use the deceptive Magenta 5 to mask your true energy, but be careful—one step over the limit will overload your system and cost you the round.",
+      "A tactical duel of numerical frequencies. Navigate the shifting colors to win tricks and calibrate your score to the perfect equilibrium of 25.",
     icon: <Target className="w-12 h-12 text-white" />,
     color: "from-fuchsia-600 to-indigo-950",
     shadow: "shadow-fuchsia-500/50",
@@ -543,7 +425,25 @@ const INITIAL_GAMES = [
 // COMPONENTS
 // ---------------------------------------------------------------------------
 
-// Modified Maintenance Component: Not Fixed position, fills content area instead
+const AnnouncementBanner = ({ message }) => {
+  // Safety check: Don't render if message is empty or just spaces
+  if (!message || typeof message !== "string" || message.trim().length === 0)
+    return null;
+
+  return (
+    // ADDED: 'relative z-50' to force this to sit on top of the background
+    // UPDATED: Brighter background colors and white text for better visibility
+    <div className="relative z-50 bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-600 border-b border-white/20 shadow-xl">
+      <div className="container mx-auto px-4 py-3 flex items-center justify-center gap-3 text-white">
+        <Megaphone className="w-5 h-5 animate-pulse flex-shrink-0 fill-white/20" />
+        <span className="font-bold text-sm md:text-base text-center tracking-wide drop-shadow-md">
+          {message}
+        </span>
+      </div>
+    </div>
+  );
+};
+
 const MaintenanceContent = () => (
   <div className="flex flex-col items-center justify-center py-20 text-center animate-in fade-in min-h-[50vh]">
     <div className="relative mb-8">
@@ -558,682 +458,8 @@ const MaintenanceContent = () => (
       We are currently deploying updates to the GameHub. The portal will be back
       online shortly.
     </p>
-    <div className="mt-8 flex items-center gap-2 text-sm text-slate-500 border border-slate-800 px-4 py-2 rounded-full">
-      <AlertTriangle size={14} /> System Upgrade in Progress
-    </div>
   </div>
 );
-
-const AdminModal = ({
-  isOpen,
-  onClose,
-  games,
-  onSave,
-  currentUser,
-  realClickData,
-  maintenanceMode,
-  setMaintenanceMode,
-}) => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [localConfig, setLocalConfig] = useState({});
-  const [activeTab, setActiveTab] = useState("config");
-  const [activityLogs, setActivityLogs] = useState([]);
-
-  useEffect(() => {
-    if (currentUser && currentUser.email === "admin@rawfidsgamehub.com") {
-      setIsAuthenticated(true);
-    } else {
-      setIsAuthenticated(false);
-    }
-  }, [isOpen, currentUser]);
-
-  useEffect(() => {
-    if (isOpen) {
-      const config = {};
-      games.forEach((g) => {
-        config[g.id] = {
-          visible: g.visible,
-          isNew: g.isNew,
-          isHot: g.isHot,
-          isFeatured: g.isFeatured || false,
-          isUpcoming: g.isUpcoming || false,
-          maintenance: g.maintenance || false,
-          popularity: g.manualBoost || 0, // UPDATED: Reads from g.manualBoost to persist value
-        };
-      });
-      setLocalConfig(config);
-    }
-  }, [isOpen, games]);
-
-  useEffect(() => {
-    if (isAuthenticated && activeTab === "logs") {
-      const q = query(
-        collection(db, "game_click_logs"),
-        orderBy("timestamp", "desc"),
-        limit(100)
-      );
-      const unsub = onSnapshot(q, (snapshot) => {
-        const logs = snapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
-        setActivityLogs(logs);
-      });
-      return () => unsub();
-    }
-  }, [isAuthenticated, activeTab]);
-
-  // --- RESTORED HELPER FUNCTIONS ---
-  const formatTime = (timestamp) => {
-    if (!timestamp) return "Just now";
-    return new Date(timestamp.seconds * 1000).toLocaleString(undefined, {
-      month: "short",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  };
-
-  const getDeviceIcon = (userAgent) => {
-    if (!userAgent) return <Monitor size={14} className="text-slate-500" />;
-    const lower = userAgent.toLowerCase();
-    if (
-      lower.includes("mobile") ||
-      lower.includes("android") ||
-      lower.includes("iphone")
-    ) {
-      return <Smartphone size={14} className="text-pink-400" />;
-    }
-    return <Monitor size={14} className="text-blue-400" />;
-  };
-
-  const getDeviceName = (userAgent) => {
-    if (!userAgent) return "Unknown";
-    if (userAgent.includes("Win")) return "Windows PC";
-    if (userAgent.includes("Mac")) return "Mac";
-    if (userAgent.includes("Linux")) return "Linux";
-    if (userAgent.includes("Android")) return "Android";
-    if (userAgent.includes("iPhone")) return "iPhone";
-    return "Browser";
-  };
-  // ---------------------------------
-
-  const chartData = useMemo(() => {
-    if (!activityLogs.length)
-      return { timeline: [], categories: [], games: [], devices: [] };
-
-    // 1. Categories Pie Chart
-    const categoryCount = {};
-    const gameCount = {};
-    const deviceCount = {};
-
-    activityLogs.forEach((log) => {
-      // Category
-      const cat = log.category || "Uncategorized";
-      categoryCount[cat] = (categoryCount[cat] || 0) + 1;
-
-      // Game Title (Real Clicks)
-      const title = log.gameTitle || "Unknown Game";
-      gameCount[title] = (gameCount[title] || 0) + 1;
-
-      // Device Type
-      const device = getDeviceName(log.device || "");
-      deviceCount[device] = (deviceCount[device] || 0) + 1;
-    });
-
-    const categoriesPie = Object.keys(categoryCount).map((key) => ({
-      name: key,
-      value: categoryCount[key],
-    }));
-    const gamesPie = Object.keys(gameCount).map((key) => ({
-      name: key,
-      value: gameCount[key],
-    }));
-    const devicesPie = Object.keys(deviceCount).map((key) => ({
-      name: key,
-      value: deviceCount[key],
-    }));
-
-    // 2. Timeline Bar Chart
-    const dateCount = {};
-    activityLogs
-      .slice()
-      .reverse()
-      .forEach((log) => {
-        if (!log.timestamp) return;
-        const date = new Date(log.timestamp.seconds * 1000).toLocaleDateString(
-          undefined,
-          { month: "short", day: "numeric" }
-        );
-        dateCount[date] = (dateCount[date] || 0) + 1;
-      });
-    const barData = Object.keys(dateCount).map((key) => ({
-      date: key,
-      clicks: dateCount[key],
-    }));
-
-    return {
-      timeline: barData,
-      categories: categoriesPie,
-      games: gamesPie,
-      devices: devicesPie,
-    };
-  }, [activityLogs]);
-
-  const COLORS = [
-    "#6366f1",
-    "#10b981",
-    "#f59e0b",
-    "#ec4899",
-    "#3b82f6",
-    "#8b5cf6",
-    "#ef4444",
-  ];
-
-  if (!isOpen) return null;
-
-  const handleLogin = async (e) => {
-    e.preventDefault();
-    try {
-      await signInWithEmailAndPassword(auth, email, password);
-    } catch (error) {
-      console.error(error);
-      alert("Invalid Credentials.");
-    }
-  };
-
-  const handleLogout = async () => {
-    await signOut(auth);
-  };
-
-  const handleSave = () => {
-    onSave(localConfig, maintenanceMode);
-    onClose();
-  };
-
-  const handleToggle = (id, field) => {
-    setLocalConfig((prev) => ({
-      ...prev,
-      [id]: { ...prev[id], [field]: !prev[id][field] },
-    }));
-  };
-
-  const handlePopularityChange = (id, val) => {
-    setLocalConfig((prev) => ({
-      ...prev,
-      [id]: { ...prev[id], popularity: parseInt(val) || 0 },
-    }));
-  };
-
-  const handleFeaturedSelect = (id) => {
-    const newConfig = { ...localConfig };
-    Object.keys(newConfig).forEach((key) => {
-      newConfig[key] = { ...newConfig[key], isFeatured: parseInt(key) === id };
-    });
-    setLocalConfig(newConfig);
-  };
-
-  return (
-    <div className="fixed inset-0 z-[100] bg-black/90 flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in">
-      <div className="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-7xl max-h-[90vh] flex flex-col shadow-2xl">
-        {/* Header */}
-        <div className="p-6 border-b border-slate-800 flex justify-between items-center bg-slate-950 rounded-t-2xl">
-          <h2 className="text-xl font-bold text-white flex items-center gap-2">
-            <Settings className="text-indigo-500" /> Admin Control Panel
-          </h2>
-          <button
-            onClick={onClose}
-            className="p-2 hover:bg-slate-800 rounded-full text-slate-400"
-          >
-            <X size={20} />
-          </button>
-        </div>
-
-        {!isAuthenticated ? (
-          <div className="p-12 flex flex-col items-center justify-center flex-1">
-            <div className="p-4 bg-indigo-500/10 rounded-full mb-6">
-              <Lock className="w-8 h-8 text-indigo-500" />
-            </div>
-            <form onSubmit={handleLogin} className="w-full max-w-sm space-y-4">
-              <input
-                type="email"
-                placeholder="Email"
-                className="w-full bg-slate-800 border border-slate-700 rounded-lg p-3 text-white focus:border-indigo-500 outline-none"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-              />
-              <input
-                type="password"
-                placeholder="Password"
-                className="w-full bg-slate-800 border border-slate-700 rounded-lg p-3 text-white focus:border-indigo-500 outline-none"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-              />
-              <button className="w-full bg-indigo-600 hover:bg-indigo-500 p-3 rounded-lg text-white font-bold transition-colors">
-                Login
-              </button>
-            </form>
-          </div>
-        ) : (
-          <>
-            <div className="flex flex-col md:flex-row border-b border-slate-800 bg-slate-900/50 justify-between md:pr-6">
-              <div className="flex overflow-x-auto">
-                <button
-                  onClick={() => setActiveTab("config")}
-                  className={`px-6 py-4 text-sm font-bold flex items-center gap-2 transition-colors whitespace-nowrap ${
-                    activeTab === "config"
-                      ? "text-white border-b-2 border-indigo-500 bg-slate-800"
-                      : "text-slate-400 hover:text-white"
-                  }`}
-                >
-                  <LayoutGrid size={16} /> Game Config
-                </button>
-                <button
-                  onClick={() => setActiveTab("logs")}
-                  className={`px-6 py-4 text-sm font-bold flex items-center gap-2 transition-colors whitespace-nowrap ${
-                    activeTab === "logs"
-                      ? "text-white border-b-2 border-indigo-500 bg-slate-800"
-                      : "text-slate-400 hover:text-white"
-                  }`}
-                >
-                  <BarChart3 size={16} /> Analytics & Logs
-                </button>
-              </div>
-
-              <div className="flex items-center gap-3 p-4 md:p-0">
-                <span className="text-xs font-bold uppercase text-slate-400">
-                  Global Maintenance
-                </span>
-                <div
-                  onClick={() => setMaintenanceMode(!maintenanceMode)}
-                  className={`w-12 h-6 rounded-full cursor-pointer p-1 transition-colors ${
-                    maintenanceMode ? "bg-orange-500" : "bg-slate-700"
-                  }`}
-                >
-                  <div
-                    className={`w-4 h-4 bg-white rounded-full transition-transform ${
-                      maintenanceMode ? "translate-x-6" : "translate-x-0"
-                    }`}
-                  />
-                </div>
-              </div>
-            </div>
-
-            <div className="flex-1 overflow-y-auto p-4 md:p-6">
-              {activeTab === "config" && (
-                <div className="overflow-x-auto">
-                  <table className="w-full text-left border-collapse min-w-[800px]">
-                    <thead>
-                      <tr className="text-slate-400 text-xs uppercase tracking-wider border-b border-slate-800">
-                        <th className="pb-3 pl-2">Game</th>
-                        <th className="pb-3 text-center">Featured</th>
-                        <th className="pb-3 text-center">Visible</th>
-                        <th
-                          className="pb-3 text-center text-red-400"
-                          title="Maintenance Mode"
-                        >
-                          <Hammer size={14} className="mx-auto" />
-                        </th>
-                        <th className="pb-3 text-center">New</th>
-                        <th className="pb-3 text-center">Hot</th>
-                        <th className="pb-3 text-center text-indigo-400">
-                          Upcoming
-                        </th>
-                        <th className="pb-3 text-center text-emerald-400">
-                          Real Clicks
-                        </th>
-                        <th className="pb-3 text-center text-orange-400">
-                          Boost
-                        </th>
-                        <th className="pb-3 text-center">Total</th>
-                      </tr>
-                    </thead>
-                    <tbody className="text-sm">
-                      {games.map((game) => {
-                        const realClicks = realClickData[game.id] || 0;
-                        const manualBoost =
-                          localConfig[game.id]?.popularity || 0;
-                        return (
-                          <tr
-                            key={game.id}
-                            className="border-b border-slate-800/50 hover:bg-slate-800/30 transition-colors"
-                          >
-                            <td className="py-3 pl-2 font-medium text-slate-200">
-                              {game.title}
-                            </td>
-                            <td className="py-3 text-center">
-                              <div className="flex justify-center">
-                                <input
-                                  type="radio"
-                                  name="featuredGame"
-                                  checked={
-                                    localConfig[game.id]?.isFeatured || false
-                                  }
-                                  onChange={() => handleFeaturedSelect(game.id)}
-                                  className="w-4 h-4 accent-yellow-500 cursor-pointer"
-                                />
-                              </div>
-                            </td>
-                            <td className="py-3 text-center">
-                              <input
-                                type="checkbox"
-                                checked={localConfig[game.id]?.visible ?? true}
-                                onChange={() =>
-                                  handleToggle(game.id, "visible")
-                                }
-                                className="w-4 h-4 accent-emerald-500 cursor-pointer"
-                              />
-                            </td>
-                            <td className="py-3 text-center">
-                              <input
-                                type="checkbox"
-                                checked={
-                                  localConfig[game.id]?.maintenance ?? false
-                                }
-                                onChange={() =>
-                                  handleToggle(game.id, "maintenance")
-                                }
-                                className="w-4 h-4 accent-red-500 cursor-pointer"
-                              />
-                            </td>
-                            <td className="py-3 text-center">
-                              <input
-                                type="checkbox"
-                                checked={localConfig[game.id]?.isNew ?? false}
-                                onChange={() => handleToggle(game.id, "isNew")}
-                                className="w-4 h-4 accent-indigo-500 cursor-pointer"
-                              />
-                            </td>
-                            <td className="py-3 text-center">
-                              <input
-                                type="checkbox"
-                                checked={localConfig[game.id]?.isHot ?? false}
-                                onChange={() => handleToggle(game.id, "isHot")}
-                                className="w-4 h-4 accent-orange-500 cursor-pointer"
-                              />
-                            </td>
-                            <td className="py-3 text-center">
-                              <input
-                                type="checkbox"
-                                checked={
-                                  localConfig[game.id]?.isUpcoming ?? false
-                                }
-                                onChange={() =>
-                                  handleToggle(game.id, "isUpcoming")
-                                }
-                                className="w-4 h-4 accent-pink-500 cursor-pointer"
-                              />
-                            </td>
-                            <td className="py-3 text-center text-emerald-400 font-mono">
-                              {realClicks}
-                            </td>
-                            <td className="py-3 text-center">
-                              <input
-                                type="number"
-                                value={manualBoost}
-                                onChange={(e) =>
-                                  handlePopularityChange(
-                                    game.id,
-                                    e.target.value
-                                  )
-                                }
-                                className="w-20 bg-slate-950 border border-slate-700 rounded p-1 text-center text-white focus:border-indigo-500 outline-none"
-                              />
-                            </td>
-                            <td className="py-3 text-center text-slate-400 font-bold">
-                              {realClicks + manualBoost}
-                            </td>
-                          </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
-                </div>
-              )}
-
-              {activeTab === "logs" && (
-                <div className="space-y-8">
-                  {/* CHART GRID */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {/* Timeline */}
-                    <div className="bg-slate-950 p-4 rounded-xl border border-slate-800">
-                      <h3 className="text-slate-400 text-xs uppercase mb-4 font-bold flex items-center gap-2">
-                        <BarChart3 size={14} /> Activity Timeline
-                      </h3>
-                      <div className="h-64 w-full">
-                        <ResponsiveContainer width="100%" height="100%">
-                          <BarChart data={chartData.timeline}>
-                            <XAxis
-                              dataKey="date"
-                              stroke="#64748b"
-                              fontSize={12}
-                            />
-                            <YAxis
-                              stroke="#64748b"
-                              fontSize={12}
-                              allowDecimals={false}
-                            />
-                            <Tooltip
-                              contentStyle={{
-                                backgroundColor: "#0f172a",
-                                borderColor: "#334155",
-                                color: "#fff",
-                              }}
-                            />
-                            <Bar
-                              dataKey="clicks"
-                              fill="#6366f1"
-                              radius={[4, 4, 0, 0]}
-                            />
-                          </BarChart>
-                        </ResponsiveContainer>
-                      </div>
-                    </div>
-
-                    {/* Category Popularity */}
-                    <div className="bg-slate-950 p-4 rounded-xl border border-slate-800">
-                      <h3 className="text-slate-400 text-xs uppercase mb-4 font-bold flex items-center gap-2">
-                        <PieIcon size={14} /> Category Popularity (Real Clicks)
-                      </h3>
-                      <div className="h-64 w-full">
-                        <ResponsiveContainer width="100%" height="100%">
-                          <PieChart>
-                            <Pie
-                              data={chartData.categories}
-                              cx="50%"
-                              cy="50%"
-                              innerRadius={60}
-                              outerRadius={80}
-                              paddingAngle={5}
-                              dataKey="value"
-                            >
-                              {chartData.categories.map((entry, index) => (
-                                <Cell
-                                  key={`cell-${index}`}
-                                  fill={COLORS[index % COLORS.length]}
-                                />
-                              ))}
-                            </Pie>
-                            <Tooltip
-                              contentStyle={{
-                                backgroundColor: "#0f172a",
-                                borderColor: "#334155",
-                                color: "#fff",
-                              }}
-                            />
-                            <Legend />
-                          </PieChart>
-                        </ResponsiveContainer>
-                      </div>
-                    </div>
-
-                    {/* Game Popularity */}
-                    <div className="bg-slate-950 p-4 rounded-xl border border-slate-800">
-                      <h3 className="text-slate-400 text-xs uppercase mb-4 font-bold flex items-center gap-2">
-                        <PieIcon size={14} /> Game Popularity (Real Clicks)
-                      </h3>
-                      <div className="h-64 w-full">
-                        <ResponsiveContainer width="100%" height="100%">
-                          <PieChart>
-                            <Pie
-                              data={chartData.games}
-                              cx="50%"
-                              cy="50%"
-                              innerRadius={60}
-                              outerRadius={80}
-                              paddingAngle={5}
-                              dataKey="value"
-                            >
-                              {chartData.games.map((entry, index) => (
-                                <Cell
-                                  key={`cell-${index}`}
-                                  fill={COLORS[index % COLORS.length]}
-                                />
-                              ))}
-                            </Pie>
-                            <Tooltip
-                              contentStyle={{
-                                backgroundColor: "#0f172a",
-                                borderColor: "#334155",
-                                color: "#fff",
-                              }}
-                            />
-                            <Legend />
-                          </PieChart>
-                        </ResponsiveContainer>
-                      </div>
-                    </div>
-
-                    {/* Device Distribution */}
-                    <div className="bg-slate-950 p-4 rounded-xl border border-slate-800">
-                      <h3 className="text-slate-400 text-xs uppercase mb-4 font-bold flex items-center gap-2">
-                        <Laptop size={14} /> Device Distribution
-                      </h3>
-                      <div className="h-64 w-full">
-                        <ResponsiveContainer width="100%" height="100%">
-                          <PieChart>
-                            <Pie
-                              data={chartData.devices}
-                              cx="50%"
-                              cy="50%"
-                              innerRadius={60}
-                              outerRadius={80}
-                              paddingAngle={5}
-                              dataKey="value"
-                            >
-                              {chartData.devices.map((entry, index) => (
-                                <Cell
-                                  key={`cell-${index}`}
-                                  fill={COLORS[index % COLORS.length]}
-                                />
-                              ))}
-                            </Pie>
-                            <Tooltip
-                              contentStyle={{
-                                backgroundColor: "#0f172a",
-                                borderColor: "#334155",
-                                color: "#fff",
-                              }}
-                            />
-                            <Legend />
-                          </PieChart>
-                        </ResponsiveContainer>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* RESTORED DETAILED LOGS TABLE */}
-                  <div className="bg-slate-950 p-4 rounded-xl border border-slate-800 overflow-hidden">
-                    <h3 className="text-slate-400 text-xs uppercase mb-4 font-bold flex items-center gap-2">
-                      <List size={14} /> Recent Activity Log
-                    </h3>
-                    <div className="overflow-x-auto">
-                      <table className="w-full text-left border-collapse min-w-[600px]">
-                        <thead>
-                          <tr className="text-slate-400 text-xs uppercase tracking-wider border-b border-slate-800">
-                            <th className="pb-3 pl-2">Time</th>
-                            <th className="pb-3">Game</th>
-                            <th className="pb-3">Category</th>
-                            <th className="pb-3">User ID</th>
-                            <th className="pb-3 text-right pr-2">Device</th>
-                          </tr>
-                        </thead>
-                        <tbody className="text-sm">
-                          {activityLogs.map((log) => (
-                            <tr
-                              key={log.id}
-                              className="border-b border-slate-800/50 hover:bg-slate-800/30 transition-colors"
-                            >
-                              <td className="py-3 pl-2 text-slate-400 font-mono text-xs whitespace-nowrap">
-                                {formatTime(log.timestamp)}
-                              </td>
-                              <td className="py-3 font-medium text-white">
-                                {log.gameTitle}
-                              </td>
-                              <td className="py-3 text-slate-400">
-                                <span className="px-2 py-1 bg-slate-800 rounded text-xs">
-                                  {log.category}
-                                </span>
-                              </td>
-                              <td
-                                className="py-3 font-mono text-xs text-slate-500"
-                                title={log.userId}
-                              >
-                                {!log.userId || log.userId === "unknown"
-                                  ? "Guest"
-                                  : log.userId.substring(0, 8) + "..."}
-                              </td>
-                              <td className="py-3 text-right pr-2 flex justify-end items-center gap-2 text-slate-400">
-                                <span className="text-xs hidden md:inline">
-                                  {getDeviceName(log.device)}
-                                </span>
-                                {getDeviceIcon(log.device)}
-                              </td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                      {activityLogs.length === 0 && (
-                        <div className="text-center text-slate-500 py-8 italic">
-                          No activity recorded yet.
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            <div className="p-6 border-t border-slate-800 bg-slate-950 flex justify-between gap-3 rounded-b-2xl">
-              <button
-                onClick={handleLogout}
-                className="px-6 py-2 rounded-lg text-red-400 hover:bg-red-900/20 transition-colors"
-              >
-                Log Out
-              </button>
-              <div className="flex gap-2">
-                <button
-                  onClick={onClose}
-                  className="px-6 py-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
-                >
-                  Close
-                </button>
-                <button
-                  onClick={handleSave}
-                  className="px-6 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold flex items-center gap-2 shadow-lg shadow-emerald-900/20"
-                >
-                  <Save size={18} /> Publish
-                </button>
-              </div>
-            </div>
-          </>
-        )}
-      </div>
-    </div>
-  );
-};
 
 const RandomGameModal = ({ isOpen, onClose, games, onSelect }) => {
   const [isSpinning, setIsSpinning] = useState(false);
@@ -1313,24 +539,19 @@ const RandomGameModal = ({ isOpen, onClose, games, onSelect }) => {
     </div>
   );
 };
+
 const NewReleaseSlider = ({ games, onGameClick }) => {
   const heroGames = useMemo(() => {
-    // Strategy: Combine FEATURED, NEW, and UPCOMING games
     const featuredGames = games.filter((g) => g.isFeatured && g.visible);
     const newGames = games.filter((g) => g.isNew && g.visible);
     const upcomingGames = games.filter((g) => g.isUpcoming && g.visible);
 
-    // Combine and remove duplicates (using Set of IDs)
-    // Order: Featured first, then New, then Upcoming
     const combined = [...featuredGames, ...newGames, ...upcomingGames];
     const uniqueGames = Array.from(
       new Map(combined.map((game) => [game.id, game])).values()
     );
 
-    // Fallback: If list empty, show Hot games
-    if (uniqueGames.length > 0) {
-      return uniqueGames;
-    }
+    if (uniqueGames.length > 0) return uniqueGames;
     return games.filter((g) => g.isHot && g.visible).slice(0, 3);
   }, [games]);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -1354,21 +575,18 @@ const NewReleaseSlider = ({ games, onGameClick }) => {
   };
 
   if (!heroGames || heroGames.length === 0) return null;
-  // SAFETY FIX: Ensure currentIndex is within bounds
   const safeIndex = currentIndex >= heroGames.length ? 0 : currentIndex;
   const currentGame = heroGames[safeIndex];
-
-  // Extra safety guard
   if (!currentGame) return null;
+
   const handleHeroClick = (e) => {
     e.preventDefault();
     if (currentGame.isUpcoming || currentGame.maintenance) return;
-
     onGameClick(currentGame);
     window.open(currentGame.link, "_blank");
     logGameClick(currentGame);
   };
-  // Determine badge text and style
+
   let badgeText = "Featured";
   let badgeColor = "bg-emerald-500/20 border-emerald-500/30 text-emerald-300";
 
@@ -1379,7 +597,6 @@ const NewReleaseSlider = ({ games, onGameClick }) => {
     badgeText = "Maintenance Break";
     badgeColor = "bg-orange-500/20 border-orange-500/30 text-orange-300";
   } else if (currentGame.isFeatured) {
-    // UPDATED: Priority moved up. Featured takes precedence over New.
     badgeText = "Featured";
     badgeColor = "bg-emerald-500/20 border-emerald-500/30 text-emerald-300";
   } else if (currentGame.isNew) {
@@ -1399,7 +616,6 @@ const NewReleaseSlider = ({ games, onGameClick }) => {
       <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" />
 
       <div className="relative p-6 md:p-12 flex flex-col md:flex-row items-center gap-8 text-center md:text-left min-h-[400px]">
-        {/* Left Arrow (Desktop) */}
         <button
           onClick={() =>
             handleManualSlide(
@@ -1412,7 +628,6 @@ const NewReleaseSlider = ({ games, onGameClick }) => {
         </button>
 
         <div className="flex-1 flex flex-col md:flex-row items-center gap-8 w-full justify-center">
-          {/* Game Icon */}
           <div
             className={`p-6 rounded-2xl bg-gradient-to-br ${currentGame.color} ${currentGame.shadow} shadow-2xl transform transition-all duration-500 scale-100`}
           >
@@ -1421,7 +636,6 @@ const NewReleaseSlider = ({ games, onGameClick }) => {
             })}
           </div>
 
-          {/* Game Content */}
           <div className="flex-1 max-w-xl">
             <div
               className={`inline-flex items-center gap-2 px-3 py-1 rounded-full border text-xs font-bold uppercase animate-pulse tracking-widest mb-4 ${badgeColor}`}
@@ -1435,7 +649,6 @@ const NewReleaseSlider = ({ games, onGameClick }) => {
               )}{" "}
               {badgeText}
             </div>
-            {/* Fixed key prop usage */}
             <h2
               key={currentGame.id}
               className="text-3xl md:text-5xl font-black text-white mb-4 tracking-tight animate-in fade-in slide-in-from-bottom-2 duration-500"
@@ -1446,7 +659,6 @@ const NewReleaseSlider = ({ games, onGameClick }) => {
               {currentGame.description}
             </p>
 
-            {/* Play Button - Hidden for Upcoming/Maintenance Games */}
             {!currentGame.isUpcoming && (
               <button
                 onClick={handleHeroClick}
@@ -1471,7 +683,6 @@ const NewReleaseSlider = ({ games, onGameClick }) => {
           </div>
         </div>
 
-        {/* Right Arrow (Desktop) */}
         <button
           onClick={() => handleManualSlide((safeIndex + 1) % heroGames.length)}
           className="hidden md:block absolute right-4 p-2 rounded-full bg-slate-800/50 hover:bg-slate-700 text-white z-20"
@@ -1610,7 +821,6 @@ const GameCard = ({
           </p>
 
           <div className="flex flex-wrap gap-2 mb-4">
-            {/* Renders multiple categories if present */}
             {game.categories &&
               game.categories.map((cat, i) => (
                 <span
@@ -1732,7 +942,6 @@ animation-timing-function: ease-in-out; animation-iteration-count: infinite; }`}
 const WebsiteQrModal = ({ isOpen, onClose }) => {
   if (!isOpen) return null;
 
-  // Get current URL to generate QR code for
   const currentUrl = window.location.href;
   const qrImage = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(
     currentUrl
@@ -1785,10 +994,9 @@ const GameHub = () => {
   const [isRandomModalOpen, setIsRandomModalOpen] = useState(false);
   const [gameOverrides, setGameOverrides] = useState({});
   const [clickStats, setClickStats] = useState({});
-  const [isAdminOpen, setIsAdminOpen] = useState(false);
   const [isQrOpen, setIsQrOpen] = useState(false);
-  const [user, setUser] = useState(null);
   const [maintenanceMode, setMaintenanceMode] = useState(false);
+  const [systemMessage, setSystemMessage] = useState(""); // Global Announcement
 
   useEffect(() => {
     const storedFavs = localStorage.getItem("gamehub_favorites");
@@ -1800,6 +1008,7 @@ const GameHub = () => {
       setRecentlyPlayed(JSON.parse(storedHistory));
     }
   }, []);
+
   useEffect(() => {
     const unsubConfig = onSnapshot(
       doc(db, "game_hub_settings", "config"),
@@ -1808,6 +1017,7 @@ const GameHub = () => {
           const data = doc.data();
           setGameOverrides(data);
           setMaintenanceMode(data.maintenanceMode || false);
+          setSystemMessage(data.systemMessage || ""); // Read announcement
         }
       }
     );
@@ -1822,7 +1032,6 @@ const GameHub = () => {
     });
 
     const unsubAuth = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser);
       if (!currentUser) signInAnonymously(auth);
     });
     return () => {
@@ -1831,16 +1040,6 @@ const GameHub = () => {
       unsubAuth();
     };
   }, []);
-  const handleAdminSave = async (newConfig, newMaintenanceMode) => {
-    await setDoc(
-      doc(db, "game_hub_settings", "config"),
-      {
-        ...newConfig,
-        maintenanceMode: newMaintenanceMode,
-      },
-      { merge: true }
-    );
-  };
 
   const handleToggleFavorite = (id) => {
     const newFavs = new Set(favorites);
@@ -1875,19 +1074,21 @@ const GameHub = () => {
         isFeatured: override.isFeatured || false,
         isUpcoming: override.isUpcoming || false,
         maintenance: override.maintenance || false,
-        manualBoost: manualBoost, // UPDATED: Pass manualBoost to game object
+        manualBoost: manualBoost,
         popularity: realClicks + manualBoost,
       };
     });
   }, [gameOverrides, clickStats]);
+
   const categories = [
     "All",
     ...new Set(
       processedGames
         .filter((g) => g.visible && !g.isUpcoming)
-        .flatMap((g) => g.categories) // UPDATED: Use flatMap to handle arrays
+        .flatMap((g) => g.categories)
     ),
   ];
+
   const isFiltering =
     searchTerm !== "" ||
     selectedCategory !== "All" ||
@@ -1898,14 +1099,12 @@ const GameHub = () => {
   const filteredGames = useMemo(() => {
     return processedGames
       .filter((game) => {
-        // UPDATED: Search checks if ANY category matches
         const matchesSearch =
           game.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
           game.categories.some((c) =>
             c.toLowerCase().includes(searchTerm.toLowerCase())
           );
 
-        // UPDATED: Category check looks for inclusion in array
         const matchesCategory =
           selectedCategory === "All" ||
           game.categories.includes(selectedCategory);
@@ -1956,21 +1155,25 @@ const GameHub = () => {
     isFiltering,
     favorites,
   ]);
+
   const upcomingGames = useMemo(
     () => processedGames.filter((g) => g.visible && g.isUpcoming),
     [processedGames]
   );
+
   const popularGames = useMemo(() => {
     return [...processedGames]
       .filter((g) => g.visible && !g.isUpcoming)
       .sort((a, b) => (b.popularity || 0) - (a.popularity || 0))
       .slice(0, 2);
   }, [processedGames]);
+
   const historyGames = useMemo(() => {
     return recentlyPlayed
       .map((id) => processedGames.find((g) => g.id === id))
       .filter(Boolean);
   }, [recentlyPlayed, processedGames]);
+
   const handleRandomSelect = (game) => {
     setIsRandomModalOpen(false);
     handleGamePlay(game);
@@ -1988,40 +1191,27 @@ const GameHub = () => {
     setSelectedDuration("All");
   };
 
-  // MAINTENANCE CHECK Logic
-  const isUserAdmin = user && user.email === "admin@rawfidsgamehub.com";
-  const isMaintenanceActive = maintenanceMode && !isUserAdmin;
-
   return (
     <div className="min-h-screen bg-slate-950 text-slate-200 font-sans selection:bg-indigo-500 selection:text-white relative flex flex-col">
       <FloatingBackground games={processedGames} />
 
-      {/* RAINBOW ANIMATION STYLE */}
+      {/* GLOBAL ANNOUNCEMENT BANNER */}
+      <AnnouncementBanner message={systemMessage} />
+
       <style>{`
         @keyframes rainbow {
-          0%, 100% { color: #9333ea; } /* purple-600 */
-          14% { color: #16a34a; } /* green-600 */
-          28% { color: #dc2626; } /* red-600 */
-          42% { color: #eab308; } /* yellow-500 */
-          57% { color: #ea580c; } /* orange-600 */
-          71% { color: #0891b2; } /* cyan-600 */
-          85% { color: #db2777; } /* pink-600 */
+          0%, 100% { color: #9333ea; }
+          14% { color: #16a34a; }
+          28% { color: #dc2626; }
+          42% { color: #eab308; }
+          57% { color: #ea580c; }
+          71% { color: #0891b2; }
+          85% { color: #db2777; }
         }
         .animate-rainbow {
           animation: rainbow 8s linear infinite;
         }
       `}</style>
-
-      <AdminModal
-        isOpen={isAdminOpen}
-        onClose={() => setIsAdminOpen(false)}
-        games={processedGames}
-        onSave={handleAdminSave}
-        currentUser={user}
-        realClickData={clickStats}
-        maintenanceMode={maintenanceMode}
-        setMaintenanceMode={setMaintenanceMode}
-      />
 
       <RandomGameModal
         isOpen={isRandomModalOpen}
@@ -2030,7 +1220,6 @@ const GameHub = () => {
         onSelect={handleRandomSelect}
       />
 
-      {/* ADD THIS MODAL HERE */}
       <WebsiteQrModal isOpen={isQrOpen} onClose={() => setIsQrOpen(false)} />
 
       <div className="relative z-10 container mx-auto px-4 py-12 max-w-7xl flex-grow flex flex-col">
@@ -2047,7 +1236,7 @@ const GameHub = () => {
           </h1>
         </header>
 
-        {isMaintenanceActive ? (
+        {maintenanceMode ? (
           <MaintenanceContent />
         ) : (
           <>
@@ -2308,31 +1497,22 @@ const GameHub = () => {
           </>
         )}
 
-        {/* UPDATED FOOTER SECTION */}
         <footer className="border-t border-slate-800/50 pt-8 mt-auto text-center text-slate-500 text-sm">
           <div className="flex flex-col md:flex-row justify-center items-center gap-4 md:gap-8 mb-4">
-            {/* UPDATED BUTTON */}
             <button
               onClick={() => setIsQrOpen(true)}
               className="hover:text-white transition-colors flex items-center gap-2 group"
             >
               <div className="p-2 bg-slate-800 rounded-full group-hover:bg-indigo-600 transition-colors">
-                {/* You can keep Github icon, or import QrCode from lucide-react */}
                 <QrCode className="w-4 h-4" />
               </div>{" "}
               Share / Mobile QR
             </button>
-            {/* END UPDATED BUTTON */}
 
             <span className="hidden md:inline w-1 h-1 rounded-full bg-slate-700"></span>
             <p className="flex items-center gap-2">
               Developed by{" "}
-              <span
-                onClick={() => setIsAdminOpen(true)}
-                className="text-slate-300 font-bold cursor-pointer hover:text-indigo-400 transition-colors"
-              >
-                Rawfid K Shuvo
-              </span>
+              <span className="text-slate-300 font-bold">Rawfid K Shuvo</span>
             </p>
           </div>
           <p className="opacity-60">
