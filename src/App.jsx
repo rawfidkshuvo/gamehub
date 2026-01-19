@@ -1054,14 +1054,15 @@ const GameHub = () => {
     // --- NEW: Fetch User Location on Load ---
     const fetchLocation = async () => {
       try {
-        const response = await fetch("https://ipapi.co/json/");
+        const response = await fetch("https://ipwho.is/");
         const data = await response.json();
         // Update the global variable so logGameClick can access it
-        if (data.country_name) {
+        if (data.success) {
           globalLocationData = {
-            country: data.country_name,
+            country: data.country,
             city: data.city,
           };
+          console.log("📍 Location locked:", data.country);
         }
       } catch (error) {
         console.error("Location fetch failed:", error);
