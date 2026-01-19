@@ -63,9 +63,9 @@ import {
 // FIREBASE CONFIGURATION
 // ---------------------------------------------------------------------------
 const firebaseConfig = {
-  apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
   authDomain: "game-hub-ff8aa.firebaseapp.com",
-  projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
   storageBucket: "game-hub-ff8aa.firebasestorage.app",
   messagingSenderId: "586559578902",
   appId: "1:586559578902:web:91da4fa4ace038d16aa637",
