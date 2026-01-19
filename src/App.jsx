@@ -191,7 +191,7 @@ const INITIAL_GAMES = [
     minPlayers: 4,
     maxPlayers: 10,
     hasBots: false,
-    complexity: "High",
+    complexity: "Hard",
     duration: "15-30m",
     link: "https://rawfidkshuvo.github.io/investigation-game/",
   },
@@ -207,7 +207,7 @@ const INITIAL_GAMES = [
     minPlayers: 1,
     maxPlayers: 4,
     hasBots: true,
-    complexity: "Low",
+    complexity: "Easy",
     duration: "5-15m",
     link: "https://rawfidkshuvo.github.io/thief-police-game/",
   },
@@ -223,7 +223,7 @@ const INITIAL_GAMES = [
     minPlayers: 2,
     maxPlayers: 2,
     hasBots: false,
-    complexity: "High",
+    complexity: "Hard",
     duration: "15-20m",
     link: "https://rawfidkshuvo.github.io/emperor-game/",
   },
@@ -255,7 +255,7 @@ const INITIAL_GAMES = [
     minPlayers: 1,
     maxPlayers: 6,
     hasBots: true,
-    complexity: "Low",
+    complexity: "Easy",
     duration: "5-10m",
     link: "https://rawfidkshuvo.github.io/fruit-seller-game/",
   },
@@ -299,11 +299,11 @@ const INITIAL_GAMES = [
     icon: <Layers className="w-12 h-12 text-white" />,
     color: "from-cyan-400 to-purple-600",
     shadow: "shadow-cyan-500/50",
-    categories: ["Strategy", "Drafting"],
+    categories: ["Drafting", "Strategy"],
     minPlayers: 2,
     maxPlayers: 6,
     hasBots: false,
-    complexity: "High",
+    complexity: "Hard",
     duration: "10-20m",
     link: "https://rawfidkshuvo.github.io/neon-draft-game/",
   },
@@ -335,7 +335,7 @@ const INITIAL_GAMES = [
     minPlayers: 2,
     maxPlayers: 4,
     hasBots: false,
-    complexity: "High",
+    complexity: "Hard",
     duration: "10-20m",
     link: "https://rawfidkshuvo.github.io/guild-of-shadows-game/",
     isNew: true,
@@ -386,7 +386,7 @@ const INITIAL_GAMES = [
     minPlayers: 2,
     maxPlayers: 7,
     hasBots: false,
-    complexity: "Low",
+    complexity: "Easy",
     duration: "15-25m",
     link: "https://rawfidkshuvo.github.io/royal-menagerie-game/",
     isNew: true,
@@ -403,7 +403,7 @@ const INITIAL_GAMES = [
     minPlayers: 2,
     maxPlayers: 6,
     hasBots: false,
-    complexity: "Low",
+    complexity: "Easy",
     duration: "10-20m",
     link: "https://rawfidkshuvo.github.io/fructose-fury-game/",
     isNew: true,
@@ -437,7 +437,7 @@ const INITIAL_GAMES = [
     minPlayers: 2,
     maxPlayers: 6,
     hasBots: false,
-    complexity: "High",
+    complexity: "Hard",
     duration: "10-20m",
     link: "https://rawfidkshuvo.github.io/last-of-us-game/",
     isNew: true,
@@ -450,7 +450,7 @@ const INITIAL_GAMES = [
     icon: <Handshake className="w-12 h-12 text-white" />,
     color: "from-pink-600 to-yellow-500",
     shadow: "shadow-pink-500/50",
-    categories: ["Party", "Set Collection"],
+    categories: ["Set Collection", "Party"],
     minPlayers: 4,
     maxPlayers: 6,
     hasBots: false,
@@ -470,7 +470,7 @@ const INITIAL_GAMES = [
     minPlayers: 3,
     maxPlayers: 4,
     hasBots: false,
-    complexity: "High",
+    complexity: "Hard",
     duration: "20-30m",
     link: "https://rawfidkshuvo.github.io/spectrum-game/",
   },
@@ -887,7 +887,7 @@ const GameCard = ({
             </span>
             <span
               className={`px-2 py-1 bg-slate-800 text-[10px] uppercase font-bold rounded flex items-center gap-1 ${
-                game.complexity === "High"
+                game.complexity === "Hard"
                   ? "text-red-400"
                   : game.complexity === "Medium"
                   ? "text-yellow-400"
@@ -1413,9 +1413,9 @@ const GameHub = () => {
                   className="bg-slate-900 border border-slate-700 text-slate-300 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block p-2.5"
                 >
                   <option value="All">Any Complexity</option>
-                  <option value="Low">Low Complexity</option>
+                  <option value="Easy">Easy Complexity</option>
                   <option value="Medium">Medium Complexity</option>
-                  <option value="High">High Complexity</option>
+                  <option value="Hard">Hard Complexity</option>
                 </select>
 
                 <select
