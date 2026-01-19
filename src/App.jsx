@@ -53,7 +53,7 @@ import {
   Dices,
   Target,
   QrCode,
-  Megaphone, // Added for announcement
+  Megaphone,
   Search,
   TrendingUp,
   X,
@@ -76,13 +76,49 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 
 // ---------------------------------------------------------------------------
-// HELPER: Robust Logging for Mobile
+// TRACKING HELPERS (NEW)
+// ---------------------------------------------------------------------------
+
+// 1. Session ID: Generated once per browser session to group user clicks
+const SESSION_ID =
+  sessionStorage.getItem("gh_session_v1") ||
+  Math.random().toString(36).substring(2, 12);
+sessionStorage.setItem("gh_session_v1", SESSION_ID);
+
+// 2. Location Cache: Stores data fetched by the component so the log function can use it
+let globalLocationData = { country: null, city: null };
+
+// 3. Device Parser: Cleans up the messy User Agent string
+const getDeviceInfo = () => {
+  const ua = navigator.userAgent;
+  let device = "Desktop";
+  let os = "Unknown";
+
+  // Detect Device
+  if (/Mobi|Android/i.test(ua)) device = "Mobile";
+  else if (/iPad|Tablet/i.test(ua)) device = "Tablet";
+
+  // Detect OS
+  if (ua.includes("Win")) os = "Windows";
+  else if (ua.includes("Mac")) os = "Mac";
+  else if (ua.includes("Linux")) os = "Linux";
+  else if (ua.includes("Android")) os = "Android";
+  else if (ua.includes("iPhone") || ua.includes("iPad")) os = "iOS";
+
+  return { device, os, fullAgent: ua };
+};
+
+// ---------------------------------------------------------------------------
+// HELPER: Robust Logging (UPDATED)
 // ---------------------------------------------------------------------------
 const logGameClick = (game) => {
+  // 1. Update global click counter
   const statsRef = doc(db, "game_stats", `game_${game.id}`);
   updateDoc(statsRef, { clicks: increment(1) }).catch(async (err) => {
     if (err.code === "not-found") await setDoc(statsRef, { clicks: 1 });
   });
+
+  // 2. Create detailed activity log
   try {
     const logsRef = collection(db, "game_click_logs");
     const userId = auth.currentUser ? auth.currentUser.uid : "unknown";
@@ -91,13 +127,32 @@ const logGameClick = (game) => {
         ? game.categories[0]
         : "Uncategorized";
 
+    const deviceInfo = getDeviceInfo();
+
     addDoc(logsRef, {
+      // --- Identity ---
+      userId: userId,
+      sessionId: SESSION_ID, // Groups this session
+
+      // --- Game Info ---
       gameId: game.id,
       gameTitle: game.title,
       category: primaryCategory,
-      userId: userId,
-      device: navigator.userAgent,
+
+      // --- Location (From global cache) ---
+      country: globalLocationData.country || "Unknown",
+      city: globalLocationData.city || "Unknown",
+
+      // --- Device Info ---
+      deviceType: deviceInfo.device,
+      os: deviceInfo.os,
+      // We keep full agent just in case parsing fails
+      device: navigator.userAgent, 
+
+      // --- Context ---
       timestamp: serverTimestamp(),
+      pageLocation: window.location.pathname,
+      referrer: document.referrer || "Direct",
     });
   } catch (err) {
     console.error("Log failed", err);
@@ -426,13 +481,10 @@ const INITIAL_GAMES = [
 // ---------------------------------------------------------------------------
 
 const AnnouncementBanner = ({ message }) => {
-  // Safety check: Don't render if message is empty or just spaces
   if (!message || typeof message !== "string" || message.trim().length === 0)
     return null;
 
   return (
-    // ADDED: 'relative z-50' to force this to sit on top of the background
-    // UPDATED: Brighter background colors and white text for better visibility
     <div className="relative z-50 bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-600 border-b border-white/20 shadow-xl">
       <div className="container mx-auto px-4 py-3 flex items-center justify-center gap-3 text-white">
         <Megaphone className="w-5 h-5 animate-pulse flex-shrink-0 fill-white/20" />
@@ -999,6 +1051,26 @@ const GameHub = () => {
   const [systemMessage, setSystemMessage] = useState(""); // Global Announcement
 
   useEffect(() => {
+    // --- NEW: Fetch User Location on Load ---
+    const fetchLocation = async () => {
+      try {
+        const response = await fetch("https://ipapi.co/json/");
+        const data = await response.json();
+        // Update the global variable so logGameClick can access it
+        if (data.country_name) {
+          globalLocationData = {
+            country: data.country_name,
+            city: data.city,
+          };
+        }
+      } catch (error) {
+        console.error("Location fetch failed:", error);
+      }
+    };
+    fetchLocation();
+
+    // --- End New Code ---
+
     const storedFavs = localStorage.getItem("gamehub_favorites");
     if (storedFavs) {
       setFavorites(new Set(JSON.parse(storedFavs)));
