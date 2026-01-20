@@ -485,9 +485,9 @@ const AnnouncementBanner = ({ message }) => {
     return null;
 
   return (
-    <div className="relative z-50 bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-600 border-b border-white/20 shadow-xl">
+    <div className="relative z-50 bg-linear-to-r from-indigo-600 via-purple-600 to-indigo-600 border-b border-white/20 shadow-xl">
       <div className="container mx-auto px-4 py-3 flex items-center justify-center gap-3 text-white">
-        <Megaphone className="w-5 h-5 animate-pulse flex-shrink-0 fill-white/20" />
+        <Megaphone className="w-5 h-5 animate-pulse shrink-0 fill-white/20" />
         <span className="font-bold text-sm md:text-base text-center tracking-wide drop-shadow-md">
           {message}
         </span>
@@ -537,7 +537,7 @@ const RandomGameModal = ({ isOpen, onClose, games, onSelect }) => {
   if (!isOpen || !displayedGame) return null;
 
   return (
-    <div className="fixed inset-0 z-[110] bg-black/80 flex items-center justify-center p-4 backdrop-blur-sm">
+    <div className="fixed inset-0 z-110 bg-black/80 flex items-center justify-center p-4 backdrop-blur-sm">
       <div className="bg-slate-900 border border-slate-700 rounded-2xl max-w-md w-full p-8 text-center shadow-2xl relative">
         <button
           onClick={onClose}
@@ -560,7 +560,7 @@ const RandomGameModal = ({ isOpen, onClose, games, onSelect }) => {
           }`}
         >
           <div
-            className={`mx-auto w-24 h-24 mb-4 rounded-full bg-gradient-to-br ${displayedGame.color} flex items-center justify-center shadow-xl`}
+            className={`mx-auto w-24 h-24 mb-4 rounded-full bg-linear-to-br ${displayedGame.color} flex items-center justify-center shadow-xl`}
           >
             {React.cloneElement(displayedGame.icon, {
               className: "w-12 h-12 text-white",
@@ -663,7 +663,7 @@ const NewReleaseSlider = ({ games, onGameClick }) => {
     <div className="relative w-full max-w-5xl mx-auto mb-16 rounded-3xl overflow-hidden shadow-2xl border border-slate-700 group animate-in slide-in-from-top-10 duration-700">
       <div
         key={currentGame.id}
-        className={`absolute inset-0 bg-gradient-to-br ${currentGame.color} opacity-20 transition-opacity duration-1000`}
+        className={`absolute inset-0 bg-linear-to-br ${currentGame.color} opacity-20 transition-opacity duration-1000`}
       />
       <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" />
 
@@ -681,7 +681,7 @@ const NewReleaseSlider = ({ games, onGameClick }) => {
 
         <div className="flex-1 flex flex-col md:flex-row items-center gap-8 w-full justify-center">
           <div
-            className={`p-6 rounded-2xl bg-gradient-to-br ${currentGame.color} ${currentGame.shadow} shadow-2xl transform transition-all duration-500 scale-100`}
+            className={`p-6 rounded-2xl bg-linear-to-br ${currentGame.color} ${currentGame.shadow} shadow-2xl transform transition-all duration-500 scale-100`}
           >
             {React.cloneElement(currentGame.icon, {
               className: "w-16 h-16 md:w-24 md:h-24 text-white",
@@ -798,7 +798,7 @@ const GameCard = ({
       }`}
     >
       <div
-        className={`absolute -inset-0.5 bg-gradient-to-r ${
+        className={`absolute -inset-0.5 bg-linear-to-r ${
           game.color
         } rounded-2xl opacity-0 ${
           isUpcoming || game.maintenance
@@ -852,7 +852,7 @@ const GameCard = ({
 
         <div className="mb-4">
           <div
-            className={`inline-block p-3 rounded-xl bg-gradient-to-br ${
+            className={`inline-block p-3 rounded-xl bg-linear-to-br ${
               game.maintenance
                 ? "from-slate-700 to-slate-800 shadow-none grayscale opacity-50"
                 : game.color
@@ -864,8 +864,8 @@ const GameCard = ({
           </div>
         </div>
 
-        <div className="flex-grow">
-          <h3 className="text-2xl font-bold text-white mb-2 group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-white group-hover:to-slate-300 transition-all">
+        <div className="grow">
+          <h3 className="text-2xl font-bold text-white mb-2 group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-linear-to-r group-hover:from-white group-hover:to-slate-300 transition-all">
             {game.title}
           </h3>
           <p className="text-slate-400 leading-relaxed mb-4 text-sm">
@@ -963,7 +963,7 @@ const FloatingBackground = ({ games }) => {
   }, [games]);
   return (
     <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
-      <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-slate-900 via-slate-950 to-black" />
+      <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(ellipse_at_top,var(--tw-gradient-stops))] from-slate-900 via-slate-950 to-black" />
       {particles.map((p) => (
         <div
           key={p.id}
@@ -1000,7 +1000,7 @@ const WebsiteQrModal = ({ isOpen, onClose }) => {
   )}&bgcolor=ffffff`;
 
   return (
-    <div className="fixed inset-0 z-[120] bg-black/80 flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in">
+    <div className="fixed inset-0 z-120 bg-black/80 flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in">
       <div className="bg-slate-900 border border-slate-700 rounded-2xl max-w-sm w-full p-8 text-center shadow-2xl relative">
         <button
           onClick={onClose}
@@ -1295,7 +1295,7 @@ const GameHub = () => {
 
       <WebsiteQrModal isOpen={isQrOpen} onClose={() => setIsQrOpen(false)} />
 
-      <div className="relative z-10 container mx-auto px-4 py-12 max-w-7xl flex-grow flex flex-col">
+      <div className="relative z-10 container mx-auto px-4 py-12 max-w-7xl grow flex flex-col">
         <header className="text-center mb-12 space-y-6">
           <div className="inline-flex items-center justify-center p-3 bg-indigo-500/10 rounded-2xl border border-indigo-500/20 mb-4 animate-fade-in-down">
             <Gamepad2 className="w-6 h-6 text-indigo-400 mr-2" />
@@ -1303,7 +1303,7 @@ const GameHub = () => {
               Multiplayer Board Game Hub
             </span>
           </div>
-          <h1 className="text-5xl md:text-7xl font-black text-transparent bg-clip-text bg-gradient-to-r from-white via-slate-200 to-slate-400 tracking-tight mb-4">
+          <h1 className="text-5xl md:text-7xl font-black text-transparent bg-clip-text bg-linear-to-r from-white via-slate-200 to-slate-400 tracking-tight mb-4">
             Board Games{" "}
             <span className="animate-pulse animate-rainbow">Online</span>
           </h1>
@@ -1334,14 +1334,14 @@ const GameHub = () => {
                       onClick={() =>
                         !game.maintenance && handleRandomSelect(game)
                       }
-                      className={`flex-shrink-0 group flex items-center gap-3 p-3 rounded-xl bg-slate-900 border border-slate-800 transition-all pr-6 ${
+                      className={`shrink-0 group flex items-center gap-3 p-3 rounded-xl bg-slate-900 border border-slate-800 transition-all pr-6 ${
                         game.maintenance
                           ? "opacity-50 cursor-not-allowed border-orange-900"
                           : "hover:border-indigo-500/50 cursor-pointer"
                       }`}
                     >
                       <div
-                        className={`p-2 rounded-lg bg-gradient-to-br ${game.color}`}
+                        className={`p-2 rounded-lg bg-linear-to-br ${game.color}`}
                       >
                         {React.cloneElement(game.icon, {
                           size: 20,
@@ -1400,7 +1400,7 @@ const GameHub = () => {
 
                 <button
                   onClick={() => setIsRandomModalOpen(true)}
-                  className="px-6 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-xl text-white font-bold shadow-lg shadow-indigo-500/20 hover:scale-105 transition-transform flex items-center gap-2 whitespace-nowrap"
+                  className="px-6 py-2 bg-linear-to-r from-indigo-600 to-purple-600 rounded-xl text-white font-bold shadow-lg shadow-indigo-500/20 hover:scale-105 transition-transform flex items-center gap-2 whitespace-nowrap"
                 >
                   <Shuffle size={20} /> <span className="">Pick for me</span>
                 </button>
