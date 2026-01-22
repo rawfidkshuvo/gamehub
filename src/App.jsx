@@ -1313,15 +1313,7 @@ const GameHub = () => {
           <MaintenanceContent />
         ) : (
           <>
-            {/* NEW RELEASES SLIDER (FEATURED SECTION) */}
-            {!isFiltering && (
-              <NewReleaseSlider
-                games={processedGames}
-                onGameClick={handleGamePlay}
-              />
-            )}
-
-            {/* RECENTLY PLAYED */}
+            {/* --- RECENTLY PLAYED (MOVED HERE) --- */}
             {!isFiltering && historyGames.length > 0 && (
               <div className="w-full max-w-5xl mx-auto mb-8 animate-in slide-in-from-top-4 min-w-0">
                 <div className="flex items-center gap-2 mb-3 text-slate-400 text-sm font-bold uppercase tracking-wider">
@@ -1362,7 +1354,15 @@ const GameHub = () => {
               </div>
             )}
 
-            {/* FILTERS */}
+            {/* --- NEW RELEASES SLIDER --- */}
+            {!isFiltering && (
+              <NewReleaseSlider
+                games={processedGames}
+                onGameClick={handleGamePlay}
+              />
+            )}
+
+            {/* --- FILTERS --- */}
             <div className="max-w-5xl mx-auto mb-12 space-y-6">
               <div className="flex flex-col md:flex-row gap-4">
                 <div className="flex-1 relative group">
@@ -1406,7 +1406,24 @@ const GameHub = () => {
                 </button>
               </div>
 
+              {/* --- DROPDOWNS & FAVORITES --- */}
               <div className="flex flex-wrap gap-4 items-center">
+                {/* CATEGORY DROPDOWN (NEW) */}
+                <select
+                  value={
+                    selectedCategory === "Favorites" ? "All" : selectedCategory
+                  }
+                  onChange={(e) => setSelectedCategory(e.target.value)}
+                  className="bg-slate-900 border border-slate-700 text-slate-300 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block p-2.5"
+                >
+                  {categories.map((cat) => (
+                    <option key={cat} value={cat}>
+                      {cat === "All" ? "All Categories" : cat}
+                    </option>
+                  ))}
+                </select>
+
+                {/* COMPLEXITY DROPDOWN */}
                 <select
                   value={selectedComplexity}
                   onChange={(e) => setSelectedComplexity(e.target.value)}
@@ -1418,6 +1435,7 @@ const GameHub = () => {
                   <option value="Hard">Hard Complexity</option>
                 </select>
 
+                {/* DURATION DROPDOWN */}
                 <select
                   value={selectedDuration}
                   onChange={(e) => setSelectedDuration(e.target.value)}
@@ -1431,38 +1449,29 @@ const GameHub = () => {
 
                 <div className="h-6 w-px bg-slate-800 mx-2 hidden md:block"></div>
 
-                <div className="flex flex-wrap gap-2">
-                  <button
-                    onClick={() => setSelectedCategory("Favorites")}
-                    className={`px-4 py-2 rounded-full text-sm font-bold transition-all border flex items-center gap-2 ${
-                      selectedCategory === "Favorites"
-                        ? "bg-red-600 text-white border-red-500"
-                        : "bg-slate-900/50 text-slate-400 border-slate-700 hover:text-red-400"
-                    }`}
-                  >
-                    <Heart
-                      size={14}
-                      className={
-                        selectedCategory === "Favorites" ? "fill-white" : ""
-                      }
-                    />{" "}
-                    Favorites
-                  </button>
-                  {categories.map((cat) => (
-                    <button
-                      key={cat}
-                      onClick={() => setSelectedCategory(cat)}
-                      className={`px-4 py-2 rounded-full text-sm font-bold transition-all border ${
-                        selectedCategory === cat
-                          ? "bg-indigo-600 text-white border-indigo-500 shadow-lg shadow-indigo-900/50"
-                          : "bg-slate-900/50 text-slate-400 border-slate-700 hover:bg-slate-800 hover:text-white"
-                      }`}
-                    >
-                      {cat}
-                    </button>
-                  ))}
-                </div>
+                {/* FAVORITES BUTTON (KEPT STANDALONE) */}
+                <button
+                  onClick={() =>
+                    setSelectedCategory(
+                      selectedCategory === "Favorites" ? "All" : "Favorites"
+                    )
+                  }
+                  className={`px-4 py-2.5 rounded-lg text-sm font-bold transition-all border flex items-center gap-2 ${
+                    selectedCategory === "Favorites"
+                      ? "bg-red-600 text-white border-red-500"
+                      : "bg-slate-900 border-slate-700 text-slate-400 hover:text-red-400"
+                  }`}
+                >
+                  <Heart
+                    size={16}
+                    className={
+                      selectedCategory === "Favorites" ? "fill-white" : ""
+                    }
+                  />
+                  Favorites
+                </button>
 
+                {/* CLEAR FILTERS BUTTON */}
                 {isFiltering && (
                   <button
                     onClick={resetFilters}
