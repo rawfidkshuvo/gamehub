@@ -1484,7 +1484,7 @@ const GameHub = () => {
             </div>
 
             {/* TRENDING SECTION */}
-            {!isFiltering && popularGames.length > 0 && (
+            {/* {!isFiltering && popularGames.length > 0 && (
               <section className="mb-16 animate-in slide-in-from-bottom-4 duration-700 delay-200">
                 <div className="flex items-center gap-2 mb-6">
                   <div className="p-2 bg-blue-500/10 rounded-lg border border-blue-500/20">
@@ -1506,7 +1506,7 @@ const GameHub = () => {
                   ))}
                 </div>
               </section>
-            )}
+            )} */}
 
             {/* MAIN GAMES GRID */}
             <div className="flex items-center gap-2 mb-6">
