@@ -1525,10 +1525,11 @@ const GameHub = () => {
               
               {/* Title Section */}
               <div className="flex items-center gap-2 min-w-0">
-                <div className="p-2 bg-slate-800 rounded-lg border border-slate-700 shrink-0 hidden sm:block">
-                  <Gamepad2 className="w-5 h-5 text-slate-400" />
+                {/* Removed 'hidden' class so icon stays visible */}
+                <div className="p-2 bg-slate-800 rounded-lg border border-slate-700 shrink-0">
+                  <Gamepad2 className="w-4 h-4 md:w-5 md:h-5 text-slate-400" />
                 </div>
-                <h2 className="text-xl md:text-2xl font-bold text-white tracking-wide truncate">
+                <h2 className="text-lg md:text-2xl font-bold text-white tracking-wide truncate">
                   {isFiltering
                     ? `Results (${filteredGames.length})`
                     : "All Games"}
