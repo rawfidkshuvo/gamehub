@@ -1521,41 +1521,41 @@ const GameHub = () => {
             )} */}
 
             {/* MAIN GAMES GRID HEADER */}
-            <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-6">
+            <div className="flex items-center justify-between gap-2 md:gap-4 mb-6">
               
               {/* Title Section */}
-              <div className="flex items-center gap-2">
-                <div className="p-2 bg-slate-800 rounded-lg border border-slate-700">
+              <div className="flex items-center gap-2 min-w-0">
+                <div className="p-2 bg-slate-800 rounded-lg border border-slate-700 shrink-0 hidden sm:block">
                   <Gamepad2 className="w-5 h-5 text-slate-400" />
                 </div>
-                <h2 className="text-2xl font-bold text-white tracking-wide">
+                <h2 className="text-xl md:text-2xl font-bold text-white tracking-wide truncate">
                   {isFiltering
-                    ? `Search Results (${filteredGames.length})`
+                    ? `Results (${filteredGames.length})`
                     : "All Games"}
                 </h2>
               </div>
 
               {/* Sort Toggle */}
-              <div className="bg-slate-900 p-1 rounded-lg border border-slate-800 flex items-center">
+              <div className="bg-slate-900 p-1 rounded-lg border border-slate-800 flex items-center shrink-0">
                 <button
                   onClick={() => setSortBy("popular")}
-                  className={`px-3 py-1.5 rounded-md text-xs font-bold flex items-center gap-2 transition-all ${
+                  className={`px-2 md:px-3 py-1.5 rounded-md text-[10px] md:text-xs font-bold flex items-center gap-1 md:gap-2 transition-all ${
                     sortBy === "popular"
                       ? "bg-indigo-600 text-white shadow-lg"
                       : "text-slate-400 hover:text-white hover:bg-slate-800"
                   }`}
                 >
-                  <Star size={14} /> Popular
+                  <Star size={12} className="md:w-3.5 md:h-3.5" /> Popular
                 </button>
                 <button
                   onClick={() => setSortBy("alphabetical")}
-                  className={`px-3 py-1.5 rounded-md text-xs font-bold flex items-center gap-2 transition-all ${
+                  className={`px-2 md:px-3 py-1.5 rounded-md text-[10px] md:text-xs font-bold flex items-center gap-1 md:gap-2 transition-all ${
                     sortBy === "alphabetical"
                       ? "bg-indigo-600 text-white shadow-lg"
                       : "text-slate-400 hover:text-white hover:bg-slate-800"
                   }`}
                 >
-                  <ArrowDownAZ size={14} /> A-Z
+                  <ArrowDownAZ size={12} className="md:w-3.5 md:h-3.5" /> A-Z
                 </button>
               </div>
             </div>
