@@ -57,6 +57,8 @@ import {
   Search,
   TrendingUp,
   X,
+  ArrowDownAZ,
+  Star,
 } from "lucide-react";
 
 // ---------------------------------------------------------------------------
@@ -1049,6 +1051,7 @@ const GameHub = () => {
   const [isQrOpen, setIsQrOpen] = useState(false);
   const [maintenanceMode, setMaintenanceMode] = useState(false);
   const [systemMessage, setSystemMessage] = useState(""); // Global Announcement
+  const [sortBy, setSortBy] = useState("popular");
 
   useEffect(() => {
     // --- NEW: Fetch User Location on Load ---
@@ -1217,7 +1220,15 @@ const GameHub = () => {
           return isPlayable && game.visible;
         }
       })
-      .sort((a, b) => (b.popularity || 0) - (a.popularity || 0));
+      // --- UPDATED SORTING LOGIC START ---
+      .sort((a, b) => {
+        if (sortBy === "alphabetical") {
+          return a.title.localeCompare(b.title);
+        }
+        // Default: Popularity
+        return (b.popularity || 0) - (a.popularity || 0);
+      });
+      // --- UPDATED SORTING LOGIC END ---
   }, [
     searchTerm,
     selectedCategory,
@@ -1227,6 +1238,7 @@ const GameHub = () => {
     processedGames,
     isFiltering,
     favorites,
+    sortBy,
   ]);
 
   const upcomingGames = useMemo(
@@ -1508,18 +1520,47 @@ const GameHub = () => {
               </section>
             )} */}
 
-            {/* MAIN GAMES GRID */}
-            <div className="flex items-center gap-2 mb-6">
-              <div className="p-2 bg-slate-800 rounded-lg border border-slate-700">
-                <Gamepad2 className="w-5 h-5 text-slate-400" />
+            {/* MAIN GAMES GRID HEADER */}
+            <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-6">
+              
+              {/* Title Section */}
+              <div className="flex items-center gap-2">
+                <div className="p-2 bg-slate-800 rounded-lg border border-slate-700">
+                  <Gamepad2 className="w-5 h-5 text-slate-400" />
+                </div>
+                <h2 className="text-2xl font-bold text-white tracking-wide">
+                  {isFiltering
+                    ? `Search Results (${filteredGames.length})`
+                    : "All Games"}
+                </h2>
               </div>
-              <h2 className="text-2xl font-bold text-white tracking-wide">
-                {isFiltering
-                  ? `Search Results (${filteredGames.length})`
-                  : "All Games"}
-              </h2>
+
+              {/* Sort Toggle */}
+              <div className="bg-slate-900 p-1 rounded-lg border border-slate-800 flex items-center">
+                <button
+                  onClick={() => setSortBy("popular")}
+                  className={`px-3 py-1.5 rounded-md text-xs font-bold flex items-center gap-2 transition-all ${
+                    sortBy === "popular"
+                      ? "bg-indigo-600 text-white shadow-lg"
+                      : "text-slate-400 hover:text-white hover:bg-slate-800"
+                  }`}
+                >
+                  <Star size={14} /> Popular
+                </button>
+                <button
+                  onClick={() => setSortBy("alphabetical")}
+                  className={`px-3 py-1.5 rounded-md text-xs font-bold flex items-center gap-2 transition-all ${
+                    sortBy === "alphabetical"
+                      ? "bg-indigo-600 text-white shadow-lg"
+                      : "text-slate-400 hover:text-white hover:bg-slate-800"
+                  }`}
+                >
+                  <ArrowDownAZ size={14} /> A-Z
+                </button>
+              </div>
             </div>
 
+            {/* Grid starts here... */}
             <main className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 pb-20">
               {filteredGames.length > 0 ? (
                 filteredGames.map((game) => (
