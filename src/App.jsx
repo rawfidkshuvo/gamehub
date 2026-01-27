@@ -194,7 +194,7 @@ const INITIAL_GAMES = [
     maxPlayers: 10,
     hasBots: false,
     complexity: "Hard",
-    duration: "15-30m",
+    duration: "20-40m",
     link: "https://rawfidkshuvo.github.io/investigation-game/",
   },
   {
@@ -1195,11 +1195,11 @@ const GameHub = () => {
         const matchesDuration =
           selectedDuration === "All" ||
           (selectedDuration === "Short"
-            ? ["5-10m", "5-15m", "10-20m"].includes(game.duration)
+            ? ["15-20m", "10-20m", "5-10m", "10-35m", "5-15m", "15-25m",].includes(game.duration)
             : selectedDuration === "Medium"
-            ? ["15-30m", "20m", "20-40m", "25m"].includes(game.duration)
+            ? ["25-45m", "10-35m", "20-40m", "20-45m", "15-25m", "20-30m",].includes(game.duration)
             : selectedDuration === "Long"
-            ? ["30m+", "30-60m", "45m+"].includes(game.duration)
+            ? ["25-45m", "20-40m", "20-45m",].includes(game.duration)
             : true);
 
         const isPlayable = !game.isUpcoming;
@@ -1442,9 +1442,9 @@ const GameHub = () => {
                   className="bg-slate-900 border border-slate-700 text-slate-300 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block p-2.5"
                 >
                   <option value="All">Any Complexity</option>
-                  <option value="Easy">Easy Complexity</option>
-                  <option value="Medium">Medium Complexity</option>
-                  <option value="Hard">Hard Complexity</option>
+                  <option value="Easy">Easy</option>
+                  <option value="Medium">Medium</option>
+                  <option value="Hard">Hard</option>
                 </select>
 
                 {/* DURATION DROPDOWN */}
@@ -1454,9 +1454,9 @@ const GameHub = () => {
                   className="bg-slate-900 border border-slate-700 text-slate-300 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block p-2.5"
                 >
                   <option value="All">Any Duration</option>
-                  <option value="Short">Short (&lt; 20m)</option>
-                  <option value="Medium">Medium (20-45m)</option>
-                  <option value="Long">Long (45m+)</option>
+                  <option value="Short">Short</option>
+                  <option value="Medium">Medium</option>
+                  <option value="Long">Long</option>
                 </select>
 
                 <div className="h-6 w-px bg-slate-800 mx-2 hidden md:block"></div>
