@@ -1065,7 +1065,7 @@ const GameHub = () => {
             country: data.country,
             city: data.city,
           };
-          console.log("📍 Location locked:", data.country);
+          //console.log("📍 Location locked:", data.country);
         }
       } catch (error) {
         console.error("Location fetch failed:", error);
