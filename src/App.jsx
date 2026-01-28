@@ -1425,7 +1425,7 @@ const GameHub = () => {
                     onChange={(e) => setPlayerCount(parseInt(e.target.value))}
                     className="appearance-none w-full bg-slate-900 border border-slate-700 text-slate-300 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block pl-9 pr-10 py-2.5 cursor-pointer hover:bg-slate-800 transition-colors"
                   >
-                    <option value="0">Any Players</option>
+                    <option value="0">Players</option>
                     {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((num) => (
                       <option key={num} value={num}>{num} {num === 1 ? "Player" : "Players"}</option>
                     ))}
@@ -1442,7 +1442,7 @@ const GameHub = () => {
                     className="appearance-none w-full bg-slate-900 border border-slate-700 text-slate-300 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block pl-9 pr-10 py-2.5 cursor-pointer hover:bg-slate-800 transition-colors"
                   >
                     {categories.map((cat) => (
-                      <option key={cat} value={cat}>{cat === "All" ? "All Categories" : cat}</option>
+                      <option key={cat} value={cat}>{cat === "All" ? "Categories" : cat}</option>
                     ))}
                   </select>
                   <Layers className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 pointer-events-none" />
@@ -1456,7 +1456,7 @@ const GameHub = () => {
                     onChange={(e) => setSelectedComplexity(e.target.value)}
                     className="appearance-none w-full bg-slate-900 border border-slate-700 text-slate-300 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block pl-9 pr-10 py-2.5 cursor-pointer hover:bg-slate-800 transition-colors"
                   >
-                    <option value="All">Any Complexity</option>
+                    <option value="All">Complexity</option>
                     <option value="Easy">Easy</option>
                     <option value="Medium">Medium</option>
                     <option value="Hard">Hard</option>
@@ -1472,7 +1472,7 @@ const GameHub = () => {
                     onChange={(e) => setSelectedDuration(e.target.value)}
                     className="appearance-none w-full bg-slate-900 border border-slate-700 text-slate-300 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block pl-9 pr-10 py-2.5 cursor-pointer hover:bg-slate-800 transition-colors"
                   >
-                    <option value="All">Any Duration</option>
+                    <option value="All">Duration</option>
                     <option value="Short">Short</option>
                     <option value="Medium">Medium</option>
                     <option value="Long">Long</option>
