@@ -59,6 +59,7 @@ import {
   X,
   ArrowDownAZ,
   Star,
+  ChevronDown,
 } from "lucide-react";
 
 // ---------------------------------------------------------------------------
@@ -1374,9 +1375,10 @@ const GameHub = () => {
               />
             )}
 
-            {/* --- FILTERS --- */}
+            {/* --- SEARCH & ACTIONS --- */}
             <div className="max-w-5xl mx-auto mb-12 space-y-6">
-              <div className="flex flex-col md:flex-row gap-4">
+              <div className="flex gap-2">
+                {/* SEARCH BAR */}
                 <div className="flex-1 relative group">
                   <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                     <Search className="h-5 w-5 text-slate-500 group-focus-within:text-indigo-400 transition-colors" />
@@ -1390,108 +1392,108 @@ const GameHub = () => {
                   />
                 </div>
 
-                <div className="md:w-48 bg-slate-900/80 border border-slate-800 rounded-xl px-4 py-2 flex flex-col justify-center backdrop-blur-md">
-                  <div className="flex justify-between text-xs text-slate-400 mb-1 font-bold">
-                    <span className="flex items-center gap-1">
-                      <Users size={12} /> Players
-                    </span>
-                    <span className="text-indigo-400">
-                      {playerCount === 0 ? "Any" : playerCount}
-                    </span>
-                  </div>
-                  <input
-                    type="range"
-                    min="0"
-                    max="10"
-                    step="1"
-                    value={playerCount}
-                    onChange={(e) => setPlayerCount(parseInt(e.target.value))}
-                    className="w-full h-1.5 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-indigo-500"
-                  />
-                </div>
+                {/* FAVORITES BUTTON (Now an icon button next to Pick for Me) */}
+                <button
+                  onClick={() => setSelectedCategory(selectedCategory === "Favorites" ? "All" : "Favorites")}
+                  title="View Favorites"
+                  className={`px-5 rounded-xl font-bold shadow-lg transition-all flex items-center justify-center shrink-0 border ${
+                    selectedCategory === "Favorites"
+                      ? "bg-red-600 border-red-500 text-white shadow-red-500/20"
+                      : "bg-slate-900 border-slate-800 text-slate-400 hover:text-red-500 hover:border-red-500/50"
+                  }`}
+                >
+                  <Heart size={24} className={selectedCategory === "Favorites" ? "fill-white" : ""} />
+                </button>
 
+                {/* PICK FOR ME BUTTON */}
                 <button
                   onClick={() => setIsRandomModalOpen(true)}
-                  className="px-6 py-2 bg-linear-to-r from-indigo-600 to-purple-600 rounded-xl text-white font-bold shadow-lg shadow-indigo-500/20 hover:scale-105 transition-transform flex items-center gap-2 whitespace-nowrap"
+                  title="Pick for me"
+                  className="px-5 bg-linear-to-r from-indigo-600 to-purple-600 rounded-xl text-white font-bold shadow-lg shadow-indigo-500/20 hover:scale-105 active:scale-95 transition-all flex items-center justify-center shrink-0"
                 >
-                  <Shuffle size={20} /> <span className="">Pick for me</span>
+                  <Dice5 size={24} />
                 </button>
               </div>
 
-              {/* --- DROPDOWNS & FAVORITES --- */}
-              <div className="flex flex-wrap gap-4 items-center">
-                {/* CATEGORY DROPDOWN (NEW) */}
-                <select
-                  value={
-                    selectedCategory === "Favorites" ? "All" : selectedCategory
-                  }
-                  onChange={(e) => setSelectedCategory(e.target.value)}
-                  className="bg-slate-900 border border-slate-700 text-slate-300 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block p-2.5"
-                >
-                  {categories.map((cat) => (
-                    <option key={cat} value={cat}>
-                      {cat === "All" ? "All Categories" : cat}
-                    </option>
-                  ))}
-                </select>
+              {/* --- DROPDOWNS ROW --- */}
+              <div className="flex flex-wrap gap-3 items-center">
+                
+                {/* PLAYER COUNT DROPDOWN */}
+                <div className="relative flex-1 min-w-[140px] md:min-w-[160px] md:flex-none">
+                  <select
+                    value={playerCount}
+                    onChange={(e) => setPlayerCount(parseInt(e.target.value))}
+                    className="appearance-none w-full bg-slate-900 border border-slate-700 text-slate-300 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block pl-9 pr-10 py-2.5 cursor-pointer hover:bg-slate-800 transition-colors"
+                  >
+                    <option value="0">Any Players</option>
+                    {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((num) => (
+                      <option key={num} value={num}>{num} {num === 1 ? "Player" : "Players"}</option>
+                    ))}
+                  </select>
+                  <Users className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 pointer-events-none" />
+                  <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 pointer-events-none" />
+                </div>
+
+                {/* CATEGORY DROPDOWN */}
+                <div className="relative flex-1 min-w-[140px] md:min-w-[160px] md:flex-none">
+                  <select
+                    value={selectedCategory === "Favorites" ? "All" : selectedCategory}
+                    onChange={(e) => setSelectedCategory(e.target.value)}
+                    className="appearance-none w-full bg-slate-900 border border-slate-700 text-slate-300 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block pl-9 pr-10 py-2.5 cursor-pointer hover:bg-slate-800 transition-colors"
+                  >
+                    {categories.map((cat) => (
+                      <option key={cat} value={cat}>{cat === "All" ? "All Categories" : cat}</option>
+                    ))}
+                  </select>
+                  <Layers className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 pointer-events-none" />
+                  <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 pointer-events-none" />
+                </div>
 
                 {/* COMPLEXITY DROPDOWN */}
-                <select
-                  value={selectedComplexity}
-                  onChange={(e) => setSelectedComplexity(e.target.value)}
-                  className="bg-slate-900 border border-slate-700 text-slate-300 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block p-2.5"
-                >
-                  <option value="All">Any Complexity</option>
-                  <option value="Easy">Easy</option>
-                  <option value="Medium">Medium</option>
-                  <option value="Hard">Hard</option>
-                </select>
+                <div className="relative flex-1 min-w-[140px] md:min-w-[160px] md:flex-none">
+                  <select
+                    value={selectedComplexity}
+                    onChange={(e) => setSelectedComplexity(e.target.value)}
+                    className="appearance-none w-full bg-slate-900 border border-slate-700 text-slate-300 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block pl-9 pr-10 py-2.5 cursor-pointer hover:bg-slate-800 transition-colors"
+                  >
+                    <option value="All">Any Complexity</option>
+                    <option value="Easy">Easy</option>
+                    <option value="Medium">Medium</option>
+                    <option value="Hard">Hard</option>
+                  </select>
+                  <Zap className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 pointer-events-none" />
+                  <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 pointer-events-none" />
+                </div>
 
                 {/* DURATION DROPDOWN */}
-                <select
-                  value={selectedDuration}
-                  onChange={(e) => setSelectedDuration(e.target.value)}
-                  className="bg-slate-900 border border-slate-700 text-slate-300 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block p-2.5"
-                >
-                  <option value="All">Any Duration</option>
-                  <option value="Short">Short</option>
-                  <option value="Medium">Medium</option>
-                  <option value="Long">Long</option>
-                </select>
-
-                <div className="h-6 w-px bg-slate-800 mx-2 hidden md:block"></div>
-
-                {/* FAVORITES BUTTON (KEPT STANDALONE) */}
-                <button
-                  onClick={() =>
-                    setSelectedCategory(
-                      selectedCategory === "Favorites" ? "All" : "Favorites"
-                    )
-                  }
-                  className={`px-4 py-2.5 rounded-lg text-sm font-bold transition-all border flex items-center gap-2 ${
-                    selectedCategory === "Favorites"
-                      ? "bg-red-600 text-white border-red-500"
-                      : "bg-slate-900 border-slate-700 text-slate-400 hover:text-red-400"
-                  }`}
-                >
-                  <Heart
-                    size={16}
-                    className={
-                      selectedCategory === "Favorites" ? "fill-white" : ""
-                    }
-                  />
-                  Favorites
-                </button>
-
-                {/* CLEAR FILTERS BUTTON */}
-                {isFiltering && (
-                  <button
-                    onClick={resetFilters}
-                    className="ml-auto px-4 py-2 bg-red-900/50 border border-red-500 text-red-200 rounded-full text-sm font-bold flex items-center gap-2 hover:bg-red-900 transition-colors animate-in fade-in"
+                <div className="relative flex-1 min-w-[140px] md:min-w-[160px] md:flex-none">
+                  <select
+                    value={selectedDuration}
+                    onChange={(e) => setSelectedDuration(e.target.value)}
+                    className="appearance-none w-full bg-slate-900 border border-slate-700 text-slate-300 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block pl-9 pr-10 py-2.5 cursor-pointer hover:bg-slate-800 transition-colors"
                   >
-                    <Trash2 size={14} /> Clear
-                  </button>
-                )}
+                    <option value="All">Any Duration</option>
+                    <option value="Short">Short</option>
+                    <option value="Medium">Medium</option>
+                    <option value="Long">Long</option>
+                  </select>
+                  <Clock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 pointer-events-none" />
+                  <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 pointer-events-none" />
+                </div>
+
+                {/* CLEAR FILTERS (Now permanently rendered but styled conditionally) */}
+                <button
+                  onClick={resetFilters}
+                  disabled={!isFiltering}
+                  className={`p-2.5 rounded-lg border transition-all shrink-0 flex items-center justify-center ${
+                    isFiltering
+                      ? "bg-red-900/20 border-red-500/50 text-red-400 hover:bg-red-600 hover:text-white cursor-pointer"
+                      : "bg-slate-800/50 border-slate-700 text-slate-600 grayscale cursor-not-allowed"
+                  }`}
+                  title="Clear Filters"
+                >
+                  <Trash2 size={18}/>
+                </button>
               </div>
             </div>
 
