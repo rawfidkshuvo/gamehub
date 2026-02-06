@@ -60,6 +60,7 @@ import {
   ArrowDownAZ,
   Star,
   ChevronDown,
+  Hexagon,
 } from "lucide-react";
 
 // ---------------------------------------------------------------------------
@@ -293,6 +294,22 @@ const INITIAL_GAMES = [
     complexity: "Medium",
     duration: "20-45m",
     link: "https://rawfidkshuvo.github.io/protocol-game/",
+  },
+  {
+    id: 9,
+    title: "Equilibrium",
+    description:
+      "Forge a world of vibrant biomes and wildlife. Draft terrain tokens, build vertically to shape the landscape, and create specific habitats to attract animals in this strategic tile-placement game.",
+    icon: <Hexagon className="w-12 h-12 text-white" />,
+    color: "from-emerald-600 to-yellow-950",
+    shadow: "shadow-emerald-500/50",
+    categories: ["Strategy"],
+    minPlayers: 2,
+    maxPlayers: 4,
+    hasBots: false,
+    complexity: "Hard",
+    duration: "40-60m",
+    link: "https://rawfidkshuvo.github.io/equilibrium-game/",
   },
   {
     id: 10,
@@ -1200,7 +1217,7 @@ const GameHub = () => {
             : selectedDuration === "Medium"
             ? ["25-45m", "10-35m", "20-40m", "20-45m", "15-25m", "20-30m",].includes(game.duration)
             : selectedDuration === "Long"
-            ? ["25-45m", "20-40m", "20-45m",].includes(game.duration)
+            ? ["25-45m", "20-40m", "20-45m", "40-60m",].includes(game.duration)
             : true);
 
         const isPlayable = !game.isUpcoming;
