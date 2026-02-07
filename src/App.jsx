@@ -304,7 +304,7 @@ const INITIAL_GAMES = [
     color: "from-emerald-600 to-yellow-950",
     shadow: "shadow-emerald-500/50",
     categories: ["Strategy"],
-    minPlayers: 2,
+    minPlayers: 1,
     maxPlayers: 4,
     hasBots: false,
     complexity: "Hard",
