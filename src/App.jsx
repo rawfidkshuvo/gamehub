@@ -10,18 +10,19 @@ import {
   Dices 
 } from "lucide-react";
 
-// --- VISUAL COMPONENTS ---
-
-const FloatingBackground = ({ items }) => {
+// --- VISUAL COMPONENT: Floating Background ---
+const FloatingBackground = ({ games }) => {
   const particles = useMemo(() => {
-    if (!items || items.length === 0) return [];
+    // Generate particles based on the dummy games list
+    if (!games || games.length === 0) return [];
 
     return [...Array(25)].map((_, i) => {
-      const item = items[i % items.length];
+      const game = games[i % games.length];
       return {
         id: i,
-        icon: item.icon,
-        color: item.color,
+        icon: game.icon,
+        // Helper to extract color class or default
+        color: game.color.includes("text-") ? game.color : "text-slate-500", 
         size: Math.floor(Math.random() * 30) + 20,
         left: Math.random() * 100,
         top: Math.random() * 100,
@@ -32,7 +33,7 @@ const FloatingBackground = ({ items }) => {
         rotation: Math.random() * 360,
       };
     });
-  }, [items]);
+  }, [games]);
 
   return (
     <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
@@ -57,18 +58,40 @@ const FloatingBackground = ({ items }) => {
         </div>
       ))}
       <div className="absolute top-0 left-0 w-full h-full bg-slate-950/60 backdrop-blur-[1px]" />
-      <style>{`@keyframes float { 0% { transform: translate(0, 0) rotate(0deg);
-} 50% { transform: translate(var(--tx), var(--ty)) rotate(180deg); } 100% { transform: translate(0, 0) rotate(360deg); } } .animate-float { animation-name: float;
-animation-timing-function: ease-in-out; animation-iteration-count: infinite; }`}</style>
+      
+      {/* Animation Styles */}
+      <style>{`
+        @keyframes float { 
+          0% { transform: translate(0, 0) rotate(0deg); } 
+          50% { transform: translate(var(--tx), var(--ty)) rotate(180deg); } 
+          100% { transform: translate(0, 0) rotate(360deg); } 
+        } 
+        .animate-float { 
+          animation-name: float;
+          animation-timing-function: ease-in-out; 
+          animation-iteration-count: infinite; 
+        }
+        /* Defines the rainbow animation in case it is missing from your tailwind config */
+        @keyframes rainbow {
+            0% { color: #818cf8; } /* indigo-400 */
+            25% { color: #c084fc; } /* purple-400 */
+            50% { color: #f472b6; } /* pink-400 */
+            75% { color: #38bdf8; } /* sky-400 */
+            100% { color: #818cf8; }
+        }
+        .animate-rainbow {
+            animation: rainbow 3s linear infinite;
+        }
+      `}</style>
     </div>
   );
 };
 
-// --- MAIN COMPONENT ---
-
+// --- MAIN PAGE COMPONENT ---
 const GameHub = () => {
-  // Static data to keep the background animation working without the database
-  const backgroundElements = [
+  // Static data to ensure the background floating icons still work
+  // mimicking the structure of the original game objects
+  const backgroundGames = [
     { icon: <Zap />, color: "text-yellow-500" },
     { icon: <Ghost />, color: "text-purple-500" },
     { icon: <Heart />, color: "text-red-500" },
@@ -79,7 +102,8 @@ const GameHub = () => {
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-200 font-sans selection:bg-indigo-500 selection:text-white relative flex flex-col">
-      <FloatingBackground items={backgroundElements} />
+      <FloatingBackground games={backgroundGames} />
+      
       <div className="relative z-10 container mx-auto px-4 py-12 max-w-7xl grow flex flex-col">
         <header className="text-center mb-12 space-y-6">
           <div className="inline-flex items-center justify-center p-3 bg-indigo-500/10 rounded-2xl border border-indigo-500/20 mb-4 animate-fade-in-down">
@@ -90,6 +114,7 @@ const GameHub = () => {
           </div>
           <h1 className="text-5xl md:text-7xl font-black text-transparent bg-clip-text bg-linear-to-r from-white via-slate-200 to-slate-400 tracking-tight mb-4">
             Board Games{" "}
+            {/* Kept the rainbow class exactly as requested */}
             <span className="animate-pulse animate-rainbow">Online</span>
           </h1>
         </header>
