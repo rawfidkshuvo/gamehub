@@ -1,14 +1,25 @@
 import React, { useMemo } from "react";
-import { 
-  Gamepad2, 
-  Frown, 
-  Zap, 
-  Ghost, 
-  Heart, 
-  Star, 
-  Crown, 
-  Dices 
+import { useEffect, useState } from "react";
+import {
+  Gamepad2,
+  Frown,
+  Smile,
+  Zap,
+  Ghost,
+  Heart,
+  Star,
+  Crown,
+  Dices,
 } from "lucide-react";
+
+const iconSet = [
+  { icon: Gamepad2, color: "text-red-400" },
+  { icon: Smile, color: "text-green-400" },
+  { icon: Crown, color: "text-yellow-400" },
+  { icon: Star, color: "text-cyan-400" },
+  { icon: Heart, color: "text-red-400" },
+  { icon: Ghost, color: "text-indigo-400" },
+];
 
 // --- VISUAL COMPONENT: Floating Background ---
 const FloatingBackground = ({ games }) => {
@@ -22,7 +33,7 @@ const FloatingBackground = ({ games }) => {
         id: i,
         icon: game.icon,
         // Helper to extract color class or default
-        color: game.color.includes("text-") ? game.color : "text-slate-500", 
+        color: game.color.includes("text-") ? game.color : "text-slate-500",
         size: Math.floor(Math.random() * 30) + 20,
         left: Math.random() * 100,
         top: Math.random() * 100,
@@ -58,7 +69,7 @@ const FloatingBackground = ({ games }) => {
         </div>
       ))}
       <div className="absolute top-0 left-0 w-full h-full bg-slate-950/60 backdrop-blur-[1px]" />
-      
+
       {/* Animation Styles */}
       <style>{`
         @keyframes float { 
@@ -89,6 +100,17 @@ const FloatingBackground = ({ games }) => {
 
 // --- MAIN PAGE COMPONENT ---
 const GameHub = () => {
+  const [index, setIndex] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setIndex((i) => (i + 1) % iconSet.length);
+    }, 800); // must match bounce animation time
+
+    return () => clearInterval(interval);
+  }, []);
+
+  const { icon: Icon, color } = iconSet[index];
   // Static data to ensure the background floating icons still work
   // mimicking the structure of the original game objects
   const backgroundGames = [
@@ -103,7 +125,7 @@ const GameHub = () => {
   return (
     <div className="min-h-screen bg-slate-950 text-slate-200 font-sans selection:bg-indigo-500 selection:text-white relative flex flex-col">
       <FloatingBackground games={backgroundGames} />
-      
+
       <div className="relative z-10 container mx-auto px-4 py-12 max-w-7xl grow flex flex-col">
         <header className="text-center mb-12 space-y-6">
           <div className="inline-flex items-center justify-center p-3 bg-indigo-500/10 rounded-2xl border border-indigo-500/20 mb-4 animate-fade-in-down">
@@ -113,8 +135,7 @@ const GameHub = () => {
             </span>
           </div>
           <h1 className="text-5xl md:text-7xl font-black text-transparent bg-clip-text bg-linear-to-r from-white via-slate-200 to-slate-400 tracking-tight mb-4">
-            Board Games{" "}
-            {/* Kept the rainbow class exactly as requested */}
+            Board Games {/* Kept the rainbow class exactly as requested */}
             <span className="animate-pulse animate-rainbow">Online</span>
           </h1>
         </header>
@@ -122,9 +143,9 @@ const GameHub = () => {
         <div className="flex flex-col items-center justify-center py-20 text-center animate-in fade-in min-h-[50vh]">
           <div className="relative mb-8">
             <div className="absolute inset-0 bg-orange-500 blur-3xl opacity-20 rounded-full"></div>
-            <Frown
+            <Icon
               size={80}
-              className="text-orange-500 relative z-10 animate-bounce"
+              className={`${color} relative z-10 animate-bounce`}
             />
           </div>
           <h1 className="text-3xl font-black text-white mb-4">
