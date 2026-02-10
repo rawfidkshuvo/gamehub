@@ -61,6 +61,7 @@ import {
   Star,
   ChevronDown,
   Hexagon,
+  Frown,
 } from "lucide-react";
 
 // ---------------------------------------------------------------------------
@@ -72,7 +73,7 @@ const firebaseConfig = {
   projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
   storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
   messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
-  appId: import.meta.env.VITE_FIREBASE_APP_ID
+  appId: import.meta.env.VITE_FIREBASE_APP_ID,
 };
 
 const app = initializeApp(firebaseConfig);
@@ -151,7 +152,7 @@ const logGameClick = (game) => {
       deviceType: deviceInfo.device,
       os: deviceInfo.os,
       // We keep full agent just in case parsing fails
-      device: navigator.userAgent, 
+      device: navigator.userAgent,
 
       // --- Context ---
       timestamp: serverTimestamp(),
@@ -518,18 +519,59 @@ const AnnouncementBanner = ({ message }) => {
 
 const MaintenanceContent = () => (
   <div className="flex flex-col items-center justify-center py-20 text-center animate-in fade-in min-h-[50vh]">
+    <header className="text-center mb-12 space-y-6">
+      <div className="inline-flex items-center justify-center p-3 bg-indigo-500/10 rounded-2xl border border-indigo-500/20 mb-4 animate-fade-in-down">
+        <Gamepad2 className="w-6 h-6 text-indigo-400 mr-2" />
+        <span className="text-indigo-300 font-medium tracking-wide text-sm uppercase">
+          Multiplayer Board Game Hub
+        </span>
+      </div>
+      <h1 className="text-5xl md:text-7xl font-black text-transparent bg-clip-text bg-linear-to-r from-white via-slate-200 to-slate-400 tracking-tight mb-4">
+        Board Games{" "}
+        <span className="animate-pulse animate-rainbow">Online</span>
+      </h1>
+    </header>
     <div className="relative mb-8">
       <div className="absolute inset-0 bg-orange-500 blur-3xl opacity-20 rounded-full"></div>
-      <Hammer
+      <Frown
         size={80}
         className="text-orange-500 relative z-10 animate-bounce"
       />
     </div>
-    <h1 className="text-4xl font-black text-white mb-4">Under Maintenance</h1>
-    <p className="text-slate-400 max-w-md text-lg leading-relaxed">
-      We are currently deploying updates to the GameHub. The portal will be back
-      online shortly.
-    </p>
+    <h1 className="text-4xl font-black text-white mb-4">
+      We have moved our portal.
+    </h1>
+    <button
+      onClick={() =>
+        (window.location.href =
+          "https://rawfidkshuvo.github.io/rawfids-gamehub/")
+      }
+      className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition"
+    >
+      Go to New Website
+    </button>
+    <footer className="border-t border-slate-800/50 pt-8 mt-auto text-center text-slate-500 text-sm">
+      <div className="flex flex-col md:flex-row justify-center items-center gap-4 md:gap-8 mb-4">
+        <button
+          onClick={() => setIsQrOpen(true)}
+          className="hover:text-white transition-colors flex items-center gap-2 group"
+        >
+          <div className="p-2 bg-slate-800 rounded-full group-hover:bg-indigo-600 transition-colors">
+            <QrCode className="w-4 h-4" />
+          </div>{" "}
+          Share / Mobile QR
+        </button>
+
+        <span className="hidden md:inline w-1 h-1 rounded-full bg-slate-700"></span>
+        <p className="flex items-center gap-2">
+          Developed by{" "}
+          <span className="text-slate-300 font-bold">Rawfid K Shuvo</span>
+        </p>
+      </div>
+      <p className="opacity-60">
+        &copy; {new Date().getFullYear()} Game Hub Portal. All rights reserved.
+      </p>
+    </footer>
   </div>
 );
 
@@ -620,7 +662,7 @@ const NewReleaseSlider = ({ games, onGameClick }) => {
 
     const combined = [...featuredGames, ...newGames, ...upcomingGames];
     const uniqueGames = Array.from(
-      new Map(combined.map((game) => [game.id, game])).values()
+      new Map(combined.map((game) => [game.id, game])).values(),
     );
 
     if (uniqueGames.length > 0) return uniqueGames;
@@ -691,7 +733,7 @@ const NewReleaseSlider = ({ games, onGameClick }) => {
         <button
           onClick={() =>
             handleManualSlide(
-              (safeIndex - 1 + heroGames.length) % heroGames.length
+              (safeIndex - 1 + heroGames.length) % heroGames.length,
             )
           }
           className="hidden md:block absolute left-4 p-2 rounded-full bg-slate-800/50 hover:bg-slate-700 text-white z-20"
@@ -910,8 +952,8 @@ const GameCard = ({
                 game.complexity === "Hard"
                   ? "text-red-400"
                   : game.complexity === "Medium"
-                  ? "text-yellow-400"
-                  : "text-green-400"
+                    ? "text-yellow-400"
+                    : "text-green-400"
               }`}
             >
               <Zap size={10} /> {game.complexity}
@@ -1016,7 +1058,7 @@ const WebsiteQrModal = ({ isOpen, onClose }) => {
 
   const currentUrl = window.location.href;
   const qrImage = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(
-    currentUrl
+    currentUrl,
   )}&bgcolor=ffffff`;
 
   return (
@@ -1113,7 +1155,7 @@ const GameHub = () => {
           setMaintenanceMode(data.maintenanceMode || false);
           setSystemMessage(data.systemMessage || ""); // Read announcement
         }
-      }
+      },
     );
 
     const unsubStats = onSnapshot(collection(db, "game_stats"), (snapshot) => {
@@ -1179,7 +1221,7 @@ const GameHub = () => {
     ...new Set(
       processedGames
         .filter((g) => g.visible && !g.isUpcoming)
-        .flatMap((g) => g.categories)
+        .flatMap((g) => g.categories),
     ),
   ];
 
@@ -1191,62 +1233,80 @@ const GameHub = () => {
     selectedDuration !== "All";
 
   const filteredGames = useMemo(() => {
-    return processedGames
-      .filter((game) => {
-        const matchesSearch =
-          game.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          game.categories.some((c) =>
-            c.toLowerCase().includes(searchTerm.toLowerCase())
-          );
+    return (
+      processedGames
+        .filter((game) => {
+          const matchesSearch =
+            game.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            game.categories.some((c) =>
+              c.toLowerCase().includes(searchTerm.toLowerCase()),
+            );
 
-        const matchesCategory =
-          selectedCategory === "All" ||
-          game.categories.includes(selectedCategory);
+          const matchesCategory =
+            selectedCategory === "All" ||
+            game.categories.includes(selectedCategory);
 
-        const matchesPlayers =
-          playerCount === 0 ||
-          (playerCount >= game.minPlayers && playerCount <= game.maxPlayers);
+          const matchesPlayers =
+            playerCount === 0 ||
+            (playerCount >= game.minPlayers && playerCount <= game.maxPlayers);
 
-        const matchesComplexity =
-          selectedComplexity === "All" ||
-          game.complexity === selectedComplexity;
-        const matchesDuration =
-          selectedDuration === "All" ||
-          (selectedDuration === "Short"
-            ? ["15-20m", "10-20m", "5-10m", "10-35m", "5-15m", "15-25m",].includes(game.duration)
-            : selectedDuration === "Medium"
-            ? ["25-45m", "10-35m", "20-40m", "20-45m", "15-25m", "20-30m",].includes(game.duration)
-            : selectedDuration === "Long"
-            ? ["25-45m", "20-40m", "20-45m", "40-60m",].includes(game.duration)
-            : true);
+          const matchesComplexity =
+            selectedComplexity === "All" ||
+            game.complexity === selectedComplexity;
+          const matchesDuration =
+            selectedDuration === "All" ||
+            (selectedDuration === "Short"
+              ? [
+                  "15-20m",
+                  "10-20m",
+                  "5-10m",
+                  "10-35m",
+                  "5-15m",
+                  "15-25m",
+                ].includes(game.duration)
+              : selectedDuration === "Medium"
+                ? [
+                    "25-45m",
+                    "10-35m",
+                    "20-40m",
+                    "20-45m",
+                    "15-25m",
+                    "20-30m",
+                  ].includes(game.duration)
+                : selectedDuration === "Long"
+                  ? ["25-45m", "20-40m", "20-45m", "40-60m"].includes(
+                      game.duration,
+                    )
+                  : true);
 
-        const isPlayable = !game.isUpcoming;
-        if (selectedCategory === "Favorites") {
-          return favorites.has(game.id) && game.visible;
-        }
+          const isPlayable = !game.isUpcoming;
+          if (selectedCategory === "Favorites") {
+            return favorites.has(game.id) && game.visible;
+          }
 
-        if (isFiltering) {
-          return (
-            matchesSearch &&
-            matchesCategory &&
-            matchesPlayers &&
-            matchesComplexity &&
-            matchesDuration &&
-            game.visible
-          );
-        } else {
-          return isPlayable && game.visible;
-        }
-      })
-      // --- UPDATED SORTING LOGIC START ---
-      .sort((a, b) => {
-        if (sortBy === "alphabetical") {
-          return a.title.localeCompare(b.title);
-        }
-        // Default: Popularity
-        return (b.popularity || 0) - (a.popularity || 0);
-      });
-      // --- UPDATED SORTING LOGIC END ---
+          if (isFiltering) {
+            return (
+              matchesSearch &&
+              matchesCategory &&
+              matchesPlayers &&
+              matchesComplexity &&
+              matchesDuration &&
+              game.visible
+            );
+          } else {
+            return isPlayable && game.visible;
+          }
+        })
+        // --- UPDATED SORTING LOGIC START ---
+        .sort((a, b) => {
+          if (sortBy === "alphabetical") {
+            return a.title.localeCompare(b.title);
+          }
+          // Default: Popularity
+          return (b.popularity || 0) - (a.popularity || 0);
+        })
+    );
+    // --- UPDATED SORTING LOGIC END ---
   }, [
     searchTerm,
     selectedCategory,
@@ -1261,7 +1321,7 @@ const GameHub = () => {
 
   const upcomingGames = useMemo(
     () => processedGames.filter((g) => g.visible && g.isUpcoming),
-    [processedGames]
+    [processedGames],
   );
 
   const popularGames = useMemo(() => {
@@ -1339,322 +1399,34 @@ const GameHub = () => {
           </h1>
         </header>
 
-        {maintenanceMode ? (
-          <MaintenanceContent />
-        ) : (
-          <>
-            {/* --- RECENTLY PLAYED (MOVED HERE) --- */}
-            {!isFiltering && historyGames.length > 0 && (
-              <div className="w-full max-w-5xl mx-auto mb-8 animate-in slide-in-from-top-4 min-w-0">
-                <div className="flex items-center gap-2 mb-3 text-slate-400 text-sm font-bold uppercase tracking-wider">
-                  <History size={16} /> Jump back in
-                </div>
-                <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide w-full">
-                  {historyGames.map((game) => (
-                    <div
-                      key={game.id}
-                      onClick={() =>
-                        !game.maintenance && handleRandomSelect(game)
-                      }
-                      className={`shrink-0 group flex items-center gap-3 p-3 rounded-xl bg-slate-900 border border-slate-800 transition-all pr-6 ${
-                        game.maintenance
-                          ? "opacity-50 cursor-not-allowed border-orange-900"
-                          : "hover:border-indigo-500/50 cursor-pointer"
-                      }`}
-                    >
-                      <div
-                        className={`p-2 rounded-lg bg-linear-to-br ${game.color}`}
-                      >
-                        {React.cloneElement(game.icon, {
-                          size: 20,
-                          className: "text-white",
-                        })}
-                      </div>
-                      <div>
-                        <div className="text-white font-bold text-sm truncate max-w-[150px]">
-                          {game.title}
-                        </div>
-                        <div className="text-slate-500 text-xs">
-                          {game.maintenance ? "Maintenance" : "Resume"}
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* --- NEW RELEASES SLIDER --- */}
-            {!isFiltering && (
-              <NewReleaseSlider
-                games={processedGames}
-                onGameClick={handleGamePlay}
-              />
-            )}
-
-            {/* --- SEARCH & ACTIONS --- */}
-            <div className="max-w-5xl mx-auto mb-12 space-y-6">
-              <div className="flex gap-2">
-                {/* SEARCH BAR */}
-                <div className="flex-1 relative group">
-                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                    <Search className="h-5 w-5 text-slate-500 group-focus-within:text-indigo-400 transition-colors" />
-                  </div>
-                  <input
-                    type="text"
-                    placeholder="Search games..."
-                    className="block w-full pl-11 pr-4 py-4 bg-slate-900/80 border border-slate-800 rounded-xl text-slate-200 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500/50 transition-all backdrop-blur-md"
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                  />
-                </div>
-
-                {/* FAVORITES BUTTON (Now an icon button next to Pick for Me) */}
-                <button
-                  onClick={() => setSelectedCategory(selectedCategory === "Favorites" ? "All" : "Favorites")}
-                  title="View Favorites"
-                  className={`px-5 rounded-xl font-bold shadow-lg transition-all flex items-center justify-center shrink-0 border ${
-                    selectedCategory === "Favorites"
-                      ? "bg-red-600 border-red-500 text-white shadow-red-500/20"
-                      : "bg-slate-900 border-slate-800 text-slate-400 hover:text-red-500 hover:border-red-500/50"
-                  }`}
-                >
-                  <Heart size={24} className={selectedCategory === "Favorites" ? "fill-white" : ""} />
-                </button>
-
-                {/* PICK FOR ME BUTTON */}
-                <button
-                  onClick={() => setIsRandomModalOpen(true)}
-                  title="Pick for me"
-                  className="px-5 bg-linear-to-r from-indigo-600 to-purple-600 rounded-xl text-white font-bold shadow-lg shadow-indigo-500/20 hover:scale-105 active:scale-95 transition-all flex items-center justify-center shrink-0"
-                >
-                  <Dice5 size={24} />
-                </button>
-              </div>
-
-              {/* --- DROPDOWNS ROW --- */}
-              <div className="flex flex-wrap gap-3 items-center">
-                
-                {/* PLAYER COUNT DROPDOWN */}
-                <div className="relative flex-1 min-w-[140px] md:min-w-[160px] md:flex-none">
-                  <select
-                    value={playerCount}
-                    onChange={(e) => setPlayerCount(parseInt(e.target.value))}
-                    className="appearance-none w-full bg-slate-900 border border-slate-700 text-slate-300 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block pl-9 pr-10 py-2.5 cursor-pointer hover:bg-slate-800 transition-colors"
-                  >
-                    <option value="0">Players</option>
-                    {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((num) => (
-                      <option key={num} value={num}>{num} {num === 1 ? "Player" : "Players"}</option>
-                    ))}
-                  </select>
-                  <Users className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 pointer-events-none" />
-                  <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 pointer-events-none" />
-                </div>
-
-                {/* CATEGORY DROPDOWN */}
-                <div className="relative flex-1 min-w-[140px] md:min-w-[160px] md:flex-none">
-                  <select
-                    value={selectedCategory === "Favorites" ? "All" : selectedCategory}
-                    onChange={(e) => setSelectedCategory(e.target.value)}
-                    className="appearance-none w-full bg-slate-900 border border-slate-700 text-slate-300 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block pl-9 pr-10 py-2.5 cursor-pointer hover:bg-slate-800 transition-colors"
-                  >
-                    {categories.map((cat) => (
-                      <option key={cat} value={cat}>{cat === "All" ? "Categories" : cat}</option>
-                    ))}
-                  </select>
-                  <Layers className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 pointer-events-none" />
-                  <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 pointer-events-none" />
-                </div>
-
-                {/* COMPLEXITY DROPDOWN */}
-                <div className="relative flex-1 min-w-[140px] md:min-w-[160px] md:flex-none">
-                  <select
-                    value={selectedComplexity}
-                    onChange={(e) => setSelectedComplexity(e.target.value)}
-                    className="appearance-none w-full bg-slate-900 border border-slate-700 text-slate-300 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block pl-9 pr-10 py-2.5 cursor-pointer hover:bg-slate-800 transition-colors"
-                  >
-                    <option value="All">Complexity</option>
-                    <option value="Easy">Easy</option>
-                    <option value="Medium">Medium</option>
-                    <option value="Hard">Hard</option>
-                  </select>
-                  <Zap className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 pointer-events-none" />
-                  <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 pointer-events-none" />
-                </div>
-
-                {/* DURATION DROPDOWN */}
-                <div className="relative flex-1 min-w-[140px] md:min-w-[160px] md:flex-none">
-                  <select
-                    value={selectedDuration}
-                    onChange={(e) => setSelectedDuration(e.target.value)}
-                    className="appearance-none w-full bg-slate-900 border border-slate-700 text-slate-300 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block pl-9 pr-10 py-2.5 cursor-pointer hover:bg-slate-800 transition-colors"
-                  >
-                    <option value="All">Duration</option>
-                    <option value="Short">Short</option>
-                    <option value="Medium">Medium</option>
-                    <option value="Long">Long</option>
-                  </select>
-                  <Clock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 pointer-events-none" />
-                  <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 pointer-events-none" />
-                </div>
-
-                {/* CLEAR FILTERS (Now permanently rendered but styled conditionally) */}
-                <button
-                  onClick={resetFilters}
-                  disabled={!isFiltering}
-                  className={`p-2.5 rounded-lg border transition-all shrink-0 flex items-center justify-center ${
-                    isFiltering
-                      ? "bg-red-900/20 border-red-500/50 text-red-400 hover:bg-red-600 hover:text-white cursor-pointer"
-                      : "bg-slate-800/50 border-slate-700 text-slate-600 grayscale cursor-not-allowed"
-                  }`}
-                  title="Clear Filters"
-                >
-                  <Trash2 size={18}/>
-                </button>
-              </div>
-            </div>
-
-            {/* TRENDING SECTION */}
-            {/* {!isFiltering && popularGames.length > 0 && (
-              <section className="mb-16 animate-in slide-in-from-bottom-4 duration-700 delay-200">
-                <div className="flex items-center gap-2 mb-6">
-                  <div className="p-2 bg-blue-500/10 rounded-lg border border-blue-500/20">
-                    <TrendingUp className="w-5 h-5 text-blue-400" />
-                  </div>
-                  <h2 className="text-2xl font-bold text-white tracking-wide">
-                    Trending Now
-                  </h2>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {popularGames.map((game) => (
-                    <GameCard
-                      key={game.id}
-                      game={{ ...game, isPopular: true }}
-                      isFavorite={favorites.has(game.id)}
-                      onToggleFavorite={handleToggleFavorite}
-                      onGameClick={handleGamePlay}
-                    />
-                  ))}
-                </div>
-              </section>
-            )} */}
-
-            {/* MAIN GAMES GRID HEADER */}
-            <div className="flex items-center justify-between gap-3 mb-6">
-              
-              {/* Title Section */}
-              <div className="flex items-center gap-2 min-w-0">
-                <div className="p-2 bg-slate-800 rounded-lg border border-slate-700 shrink-0">
-                  <Gamepad2 className="w-5 h-5 text-slate-400" />
-                </div>
-                {/* Fixed to text-2xl to match 'Upcoming Releases' exactly */}
-                <h2 className="text-2xl font-bold text-white tracking-wide truncate">
-                  {isFiltering
-                    ? `Results (${filteredGames.length})`
-                    : "All Games"}
-                </h2>
-              </div>
-
-              {/* Sort Toggle */}
-              <div className="bg-slate-900 p-1 rounded-lg border border-slate-800 flex items-center shrink-0">
-                <button
-                  onClick={() => setSortBy("popular")}
-                  className={`px-3 py-1.5 rounded-md text-xs font-bold flex items-center gap-1.5 transition-all ${
-                    sortBy === "popular"
-                      ? "bg-indigo-600 text-white shadow-lg"
-                      : "text-slate-400 hover:text-white hover:bg-slate-800"
-                  }`}
-                >
-                  <Star size={14} /> 
-                  <span className="hidden sm:inline">Popular</span>
-                  <span className="sm:hidden">Hot</span>
-                </button>
-                <button
-                  onClick={() => setSortBy("alphabetical")}
-                  className={`px-3 py-1.5 rounded-md text-xs font-bold flex items-center gap-1.5 transition-all ${
-                    sortBy === "alphabetical"
-                      ? "bg-indigo-600 text-white shadow-lg"
-                      : "text-slate-400 hover:text-white hover:bg-slate-800"
-                  }`}
-                >
-                  <ArrowDownAZ size={14} /> A-Z
-                </button>
-              </div>
-            </div>
-
-            {/* Grid starts here... */}
-            <main className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 pb-20">
-              {filteredGames.length > 0 ? (
-                filteredGames.map((game) => (
-                  <GameCard
-                    key={game.id}
-                    game={{
-                      ...game,
-                      isPopular: popularGames.some((pg) => pg.id === game.id),
-                    }}
-                    isUpcoming={game.isUpcoming}
-                    isFavorite={favorites.has(game.id)}
-                    onToggleFavorite={handleToggleFavorite}
-                    onGameClick={handleGamePlay}
-                  />
-                ))
-              ) : (
-                <div className="col-span-full text-center py-20 bg-slate-900/30 rounded-3xl border border-dashed border-slate-800 animate-in fade-in">
-                  <Dice5 className="w-16 h-16 mx-auto text-slate-600 mb-4" />
-                  <h3 className="text-xl font-semibold text-slate-400">
-                    No games match your filters
-                  </h3>
-                  <button
-                    onClick={resetFilters}
-                    className="mt-6 px-6 py-2 bg-slate-800 hover:bg-slate-700 rounded-lg text-white font-medium transition-colors"
-                  >
-                    Clear Filters
-                  </button>
-                </div>
-              )}
-            </main>
-
-            {/* UPCOMING RELEASES */}
-            {!isFiltering && upcomingGames.length > 0 && (
-              <section className="mb-16 animate-in slide-in-from-bottom-4 duration-700">
-                <div className="flex items-center gap-2 mb-6">
-                  <div className="p-2 bg-pink-500/10 rounded-lg border border-pink-500/20">
-                    <Clock className="w-5 h-5 text-pink-400" />
-                  </div>
-                  <h2 className="text-2xl font-bold text-white tracking-wide">
-                    Upcoming Releases
-                  </h2>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
-                  {upcomingGames.map((game) => (
-                    <GameCard key={game.id} game={game} isUpcoming={true} />
-                  ))}
-                </div>
-              </section>
-            )}
-
-            <div className="text-center pb-12 animate-pulse">
-              <div className="inline-flex items-center gap-3 px-8 py-4 bg-slate-900/50 rounded-full border border-indigo-500/20 text-indigo-300 font-bold tracking-widest text-sm uppercase backdrop-blur-sm">
-                <Sparkles size={16} /> Stay tuned... More games coming soon...{" "}
-                <Sparkles size={16} />
-              </div>
-            </div>
-          </>
-        )}
+        <div className="flex flex-col items-center justify-center py-20 text-center animate-in fade-in min-h-[50vh]">
+          
+          <div className="relative mb-8">
+            <div className="absolute inset-0 bg-orange-500 blur-3xl opacity-20 rounded-full"></div>
+            <Frown
+              size={80}
+              className="text-orange-500 relative z-10 animate-bounce"
+            />
+          </div>
+          <h1 className="text-4xl font-black text-white mb-4">
+            We have moved our portal
+          </h1>
+          <button
+            onClick={() =>
+              (window.location.href =
+                "https://rawfidkshuvo.github.io/rawfids-gamehub/")
+            }
+            className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition"
+          >
+            Go to New Website
+          </button>
+        </div>
 
         <footer className="border-t border-slate-800/50 pt-8 mt-auto text-center text-slate-500 text-sm">
           <div className="flex flex-col md:flex-row justify-center items-center gap-4 md:gap-8 mb-4">
-            <button
-              onClick={() => setIsQrOpen(true)}
-              className="hover:text-white transition-colors flex items-center gap-2 group"
-            >
-              <div className="p-2 bg-slate-800 rounded-full group-hover:bg-indigo-600 transition-colors">
-                <QrCode className="w-4 h-4" />
-              </div>{" "}
-              Share / Mobile QR
-            </button>
+            
 
-            <span className="hidden md:inline w-1 h-1 rounded-full bg-slate-700"></span>
+            
             <p className="flex items-center gap-2">
               Developed by{" "}
               <span className="text-slate-300 font-bold">Rawfid K Shuvo</span>
