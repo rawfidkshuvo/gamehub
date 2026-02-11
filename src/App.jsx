@@ -10,10 +10,13 @@ import {
   Star,
   Crown,
   Dices,
+  ArrowBigUp,
+  ArrowBigDown,
+  Minus,
 } from "lucide-react";
 
 const iconSet = [
-  { icon: Gamepad2, color: "text-red-400" },
+  { icon: Gamepad2, color: "text-orange-400" },
   { icon: Smile, color: "text-green-400" },
   { icon: Crown, color: "text-yellow-400" },
   { icon: Star, color: "text-cyan-400" },
@@ -105,7 +108,7 @@ const GameHub = () => {
   useEffect(() => {
     const interval = setInterval(() => {
       setIndex((i) => (i + 1) % iconSet.length);
-    }, 800); // must match bounce animation time
+    }, 1500); // must match bounce animation time
 
     return () => clearInterval(interval);
   }, []);
@@ -139,27 +142,39 @@ const GameHub = () => {
             <span className="animate-pulse animate-rainbow">Online</span>
           </h1>
         </header>
-
-        <div className="flex flex-col items-center justify-center py-20 text-center animate-in fade-in min-h-[50vh]">
+        <div className="flex flex-col items-center justify-center py-5 text-center animate-in fade-in min-h-[50vh]">
           <div className="relative mb-8">
             <div className="absolute inset-0 bg-orange-500 blur-3xl opacity-20 rounded-full"></div>
             <Icon
-              size={80}
-              className={`${color} relative z-10 animate-bounce`}
+              size={50}
+              className={`-mt-10 ${color} relative z-10 animate-ping [animation-duration:1.5s]`}
             />
           </div>
-          <h1 className="text-3xl font-black text-white mb-4">
-            We have moved our portal
+          <br/>
+          <h1 className="text-2xl uppercase font-black text-indigo-600 mb-4">
+            We have a new home!
           </h1>
+          <h1 className="font-black text-slate-700 mb-4">
+            Gamehub portal has been changed
+          </h1>
+          <ArrowBigDown
+              size={60}
+              className={`mt-5 text-indigo-600 relative z-10 animate-bounce [animation-duration:1.5s]`}
+            />
+            <Minus
+              size={60}
+              className={`-mt-8 text-indigo-500 relative z-10`}
+            />
           <button
             onClick={() =>
               (window.location.href =
                 "https://rawfidkshuvo.github.io/rawfids-gamehub/")
             }
-            className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition animate-pulse"
+            className="-mt-5 bg-indigo-800 uppercase text-indigo-300 px-4 py-4 font-bold rounded-lg hover:bg-indigo-700 transition animate-pulse [animation-duration:1.5s]"
           >
             Go to New Website
           </button>
+          
         </div>
 
         <footer className="border-t border-slate-800/50 pt-8 mt-auto text-center text-slate-500 text-sm">
