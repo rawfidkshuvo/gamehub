@@ -6,6 +6,7 @@ import {
   Smile,
   Zap,
   Ghost,
+  Trophy,
   Heart,
   Star,
   Crown,
@@ -17,11 +18,11 @@ import {
 
 const iconSet = [
   { icon: Gamepad2, color: "text-orange-400" },
-  { icon: Smile, color: "text-green-400" },
   { icon: Crown, color: "text-yellow-400" },
   { icon: Star, color: "text-cyan-400" },
   { icon: Heart, color: "text-red-400" },
-  { icon: Ghost, color: "text-indigo-400" },
+  { icon: Trophy, color: "text-indigo-400" },
+  { icon: Dices, color: "text-fuchsia-400" },
 ];
 
 // --- VISUAL COMPONENT: Floating Background ---
@@ -154,7 +155,7 @@ const GameHub = () => {
           <h1 className="text-2xl uppercase font-black text-indigo-600 mb-4">
             We have a new home!
           </h1>
-          <h1 className="font-black text-slate-700 mb-4">
+          <h1 className="text-slate-500 mb-4">
             Gamehub portal has been changed
           </h1>
           <ArrowBigDown
@@ -163,14 +164,14 @@ const GameHub = () => {
             />
             <Minus
               size={60}
-              className={`-mt-8 text-indigo-500 relative z-10`}
+              className={`-mt-8 text-indigo-600 relative z-10`}
             />
           <button
             onClick={() =>
               (window.location.href =
                 "https://rawfidkshuvo.github.io/rawfids-gamehub/")
             }
-            className="-mt-5 bg-indigo-800 uppercase text-indigo-300 px-4 py-4 font-bold rounded-lg hover:bg-indigo-700 transition animate-pulse [animation-duration:1.5s]"
+            className="-mt-5 z-50 bg-indigo-600 uppercase text-white px-4 py-4 font-bold rounded-lg hover:bg-indigo-400 transition animate-pulse [animation-duration:1.5s]"
           >
             Go to New Website
           </button>
