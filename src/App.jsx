@@ -151,7 +151,7 @@ const GameHub = () => {
               className={`-mt-10 ${color} relative z-10 animate-ping [animation-duration:1.5s]`}
             />
           </div>
-          <br/>
+          <br />
           <h1 className="text-2xl uppercase font-black text-indigo-600 mb-4">
             We have a new home!
           </h1>
@@ -159,23 +159,20 @@ const GameHub = () => {
             Gamehub portal has been changed
           </h1>
           <ArrowBigDown
-              size={60}
-              className={`mt-5 text-indigo-600 relative z-10 animate-bounce [animation-duration:1.5s]`}
-            />
-            <Minus
-              size={60}
-              className={`-mt-8 text-indigo-600 relative z-10`}
-            />
+            size={60}
+            className={`mt-5 text-indigo-600 relative z-10 animate-bounce [animation-duration:1.5s]`}
+          />
+          <Minus size={60} className={`-mt-8 text-indigo-600 relative z-10`} />
           <button
-            onClick={() =>
-              (window.location.href =
-                "https://rawfidkshuvo.github.io/rawfids-gamehub/")
-            }
+            onClick={() => {
+              localStorage.removeItem("gameHub_playerName"); // 👈 remove your key
+              window.location.href =
+                "https://rawfidkshuvo.github.io/rawfids-gamehub/";
+            }}
             className="-mt-5 z-50 bg-indigo-600 uppercase text-white px-4 py-4 font-bold rounded-lg hover:bg-indigo-400 transition animate-pulse [animation-duration:1.5s]"
           >
             Go to New Website
           </button>
-          
         </div>
 
         <footer className="border-t border-slate-800/50 pt-8 mt-auto text-center text-slate-500 text-sm">
