@@ -166,6 +166,7 @@ const GameHub = () => {
           <button
             onClick={() => {
               localStorage.removeItem("gameHub_playerName"); // 👈 remove your key
+              localStorage.removeItem("geo"); // 👈 remove your key
               window.location.href =
                 "https://rawfidkshuvo.github.io/rawfids-gamehub/";
             }}
